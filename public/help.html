@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baby Monitor Help</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    h1, h2 { color: #fff; }
+    code {
+      background: #222;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    a { color: #7cc8ff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Baby Monitor - Local Help</h1>
+    <p>This application is designed to run within your local network.</p>
+    <h2>Quick Start</h2>
+    <ol>
+      <li>Open this app from the same server URL on all devices in your LAN.</li>
+      <li>On one device, select <strong>Use as Baby Device</strong> and start camera.</li>
+      <li>On parent devices, select <strong>Use as Parent Device</strong> and request connection.</li>
+    </ol>
+    <h2>Security Notes</h2>
+    <ul>
+      <li>Audio/video stream is peer-to-peer (WebRTC).</li>
+      <li>Server only handles signaling via <code>/api/v1/exchange</code>.</li>
+      <li>Deploy behind your local firewall to avoid WAN exposure.</li>
+    </ul>
+    <p><a href="/">Back to app</a></p>
+  </main>
+</body>
+</html>

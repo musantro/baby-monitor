@@ -19,7 +19,7 @@ self.addEventListener("message", async (event) => {
 async function storeOrLoadMetaCache(key, value) {
     try {
         const cache = await caches.open(META_CACHE);
-        const request = new Request(`https://${APP_NAME}.meta.cache/${key}`);
+        const request = new Request(`/meta-cache/${key}`);
 
         if (value === undefined) {
             const response = await cache.match(request);
@@ -39,7 +39,7 @@ async function isUpdateAvailable() {
         const lastUpdateKey = "last-update";
         const lastUpdateVal = await storeOrLoadMetaCache(lastUpdateKey) ?? "0";
 
-        const response = await fetch(`https://akshaynile.pythonanywhere.com/projects/${APP_NAME}`, {
+        const response = await fetch(`/api/v1/version`, {
             headers: { "X-Last-Update": lastUpdateVal }, cache: "no-store"
         });
         const data = await response.json();

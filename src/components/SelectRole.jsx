@@ -6,7 +6,7 @@ import { getBrowserID } from "../services/settings";
 function SelectRole({ showToast }) {
     const navigate = useNavigate();
     const [isInstalled, installPrompt] = usePWAInstaller("baby-monitor-pwa");
-    const readMeLink = "https://github.com/akshay-nile/baby-monitor/blob/main/README.md";
+    const readMeLink = "/help.html";
 
     function showPWAInstallPrompt() {
         if (!installPrompt) {

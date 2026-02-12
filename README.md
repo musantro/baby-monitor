@@ -27,7 +27,10 @@ It sets up a **direct connection (P2P)** between one Baby Device (camera + mic) 
 ## 🚀 How to Use
 
 ### Step 1: Open the App
-- Go to 👉 [https://akshaynile.pythonanywhere.com/projects/baby-monitor](https://akshaynile.pythonanywhere.com/projects/baby-monitor) on all devices.
+- Run locally in your LAN:
+  1. `npm install`
+  2. `npm run start:prod`
+  3. Open `http://<YOUR_LOCAL_IP>:8080` on all devices connected to the same Wi-Fi.
 
 ---
 

@@ -1,4 +1,4 @@
-const baseURL = "https://akshaynile.pythonanywhere.com";
+const baseURL = import.meta.env.VITE_SIGNALING_BASE_URL ?? "/api/v1";
 const headers = { "Content-Type": "application/json" };
 
 export async function storeSDP(sdp) {
