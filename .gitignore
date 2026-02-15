@@ -23,3 +23,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Keep SSL directory structure, ignore local certificates
+.ssl/*
+!.ssl/.gitkeep
