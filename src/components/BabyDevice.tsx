@@ -9,10 +9,12 @@ function BabyDevice({ showToast }) {
     const settingsRef = useRef(getSettings());
     const pcRef = useRef(null);
     const videoRef = useRef(null);
+    const parentVideoRef = useRef(null);
     const cameraRef = useRef({ cameras: [], count: 0, facingMode: settingsRef.current.startWithFrontCamera ? "user" : { exact: "environment" } });
     const localStreamRef = useRef(null);
     const cameraStreamRef = useRef(null);
     const timestampRendererRef = useRef(null);
+    const activeParentCameraRef = useRef(null);
 
     const [isLive, setIsLive, getIsLive] = useRefState(false);
     const [polling, setPolling, getPolling] = useRefState(false);
@@ -20,6 +22,7 @@ function BabyDevice({ showToast }) {
 
     const [button, setButton] = useState({ text: "Start Camera", color: "#007bff", disabled: false, click: startCamera });
     const [isMuted, setIsMuted] = useState(true);
+    const [isParentCameraActive, setIsParentCameraActive] = useState(false);
 
     useEffect(() => {
         async function findCameraDevices() {
@@ -86,11 +89,23 @@ function BabyDevice({ showToast }) {
             showToast("Parent device got disconnected!");
         }
         if (settingsRef.current.restartPolling && !getPolling() && getIsLive() && getActiveConnections().length === 0) beginPolling();
+        if (activeParentCameraRef.current === pc) {
+            activeParentCameraRef.current = null;
+            setIsParentCameraActive(false);
+            if (parentVideoRef.current) parentVideoRef.current.srcObject = null;
+        }
         pc?.close();
     }
 
-    function onTrack(event) {
-        videoRef.current.srcObject.addTrack(event.streams[0].getAudioTracks()[0]);
+    function onTrack(event, sender) {
+        if (event.track.kind === "audio") {
+            videoRef.current.srcObject.addTrack(event.track);
+            return;
+        }
+        sender.parentVideoTrack = event.track;
+        if (activeParentCameraRef.current === sender) {
+            parentVideoRef.current.srcObject = new MediaStream([event.track]);
+        }
     }
 
     function onMessage(message, sender) {
@@ -103,6 +118,20 @@ function BabyDevice({ showToast }) {
         }
         if (message === "DISCONNECT") {
             onDisconnect(sender);
+            return;
+        }
+        if (message === "PARENT_CAMERA_START") {
+            activeParentCameraRef.current = sender;
+            if (sender.parentVideoTrack) parentVideoRef.current.srcObject = new MediaStream([sender.parentVideoTrack]);
+            setIsParentCameraActive(true);
+            return;
+        }
+        if (message === "PARENT_CAMERA_STOP") {
+            if (activeParentCameraRef.current === sender) {
+                activeParentCameraRef.current = null;
+                setIsParentCameraActive(false);
+                if (parentVideoRef.current) parentVideoRef.current.srcObject = null;
+            }
             return;
         }
         console.warn("Unknown Signal: " + message);
@@ -195,6 +224,8 @@ function BabyDevice({ showToast }) {
         getActiveConnections().forEach(ac => sendMessage("DISCONNECT", ac));
         closeAllPCsAndRevokeSDP([...getActiveConnections(), pcRef.current]);
         setActiveConnections([]);
+        activeParentCameraRef.current = null;
+        setIsParentCameraActive(false);
         stopMediaStreams();
     }, [setIsLive, setPolling, setActiveConnections, getActiveConnections]);
 
@@ -235,7 +266,10 @@ function BabyDevice({ showToast }) {
                     </div>
                 </div>
 
-                <video ref={videoRef} onClick={flipCamera} muted={isMuted} autoPlay playsInline className="video" />
+                <div className={`baby-video-stage${isParentCameraActive ? " parent-camera-active" : ""}`}>
+                    <video ref={parentVideoRef} muted autoPlay playsInline className="parent-camera-video" />
+                    <video ref={videoRef} onClick={flipCamera} muted={isMuted} autoPlay playsInline className="video baby-camera-video" />
+                </div>
 
                 <button onClick={button.click} disabled={button.disabled} style={{ background: button.color, width: "auto" }} className="button">
                     {button.text}

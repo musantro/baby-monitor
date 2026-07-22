@@ -38,6 +38,44 @@ body {
     border-radius: 0.5em;
 }
 
+.baby-video-stage {
+    position: relative;
+}
+
+.parent-camera-video {
+    display: none;
+}
+
+.parent-camera-active {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    overflow: hidden;
+}
+
+.parent-camera-active .parent-camera-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.parent-camera-active .baby-camera-video {
+    position: absolute;
+    right: 3vw;
+    bottom: 3vh;
+    z-index: 1;
+    width: min(28vw, 220px);
+    height: auto;
+    max-width: none;
+    margin: 0;
+    border-width: 2px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65);
+}
+
 .border-glow {
     border: 4px solid yellow;
     transition: border 0.125s;
