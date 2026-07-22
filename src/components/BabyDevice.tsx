@@ -4,8 +4,10 @@ import { attachDataChannel, createAndStoreOfferWhilePolling, closeAllPCsAndRevok
 import { audioConfigs, createTimestampedMediaStream } from "../services/media";
 import { getSettings, setSettings } from "../services/settings";
 import useRefState from "../custom-hooks/useRefState";
+import { useTranslation } from "../i18n";
 
 function BabyDevice({ showToast }) {
+    const t = useTranslation();
     const settingsRef = useRef(getSettings());
     const pcRef = useRef(null);
     const videoRef = useRef(null);
@@ -20,7 +22,7 @@ function BabyDevice({ showToast }) {
     const [polling, setPolling, getPolling] = useRefState(false);
     const [activeConnections, setActiveConnections, getActiveConnections] = useRefState([]);
 
-    const [button, setButton] = useState({ text: "Start Camera", color: "#007bff", disabled: false, click: startCamera });
+    const [button, setButton] = useState({ text: t("baby.start"), color: "#007bff", disabled: false, click: startCamera });
     const [isMuted, setIsMuted] = useState(true);
     const [isParentCameraActive, setIsParentCameraActive] = useState(false);
 
@@ -34,9 +36,9 @@ function BabyDevice({ showToast }) {
     }, []);
 
     async function startCamera() {
-        setButton({ ...button, text: "Starting...", disabled: true });
+        setButton({ ...button, text: t("baby.starting"), disabled: true });
         await loadCameraStream();
-        setButton({ text: "Stop Camera", color: "#ff5b00", disabled: false, click: stopCamera });
+        setButton({ text: t("baby.stop"), color: "#ff5b00", disabled: false, click: stopCamera });
         setIsLive(true);
         beginPolling();
         await replaceTracksForAllConnections();
@@ -46,10 +48,10 @@ function BabyDevice({ showToast }) {
         setPolling(true);
         setTimeout(() => {
             setPolling(false);
-            showToast("Polling stopped!");
+            showToast(t("baby.pollingStopped"));
             if (getActiveConnections().length === 0) stopCamera();
         }, settingsRef.current.pollingTimeout * 60 * 1000);
-        showToast("Waiting for parent connections!");
+        showToast(t("baby.waiting"));
         while (getPolling()) {
             pcRef.current = getNewPC({ onConnect, onDisconnect, onTrack, stream: localStreamRef.current });
             attachDataChannel(pcRef.current, pcRef.current.createDataChannel("SIGNAL"), onMessage);
@@ -60,7 +62,7 @@ function BabyDevice({ showToast }) {
 
     function isTrustedParent(parentID) {
         if (settingsRef.current.trustedParents.includes(parentID)) return true;
-        const accepted = confirm(`Unknown parent ${parentID} wants to connect!\nAccept connection and mark as trusted parent?`);
+        const accepted = confirm(t("baby.unknownParent", { parentId: parentID }));
         if (!accepted) return false;
         settingsRef.current.trustedParents.push(parentID);
         setSettings(settingsRef.current);
@@ -76,8 +78,8 @@ function BabyDevice({ showToast }) {
                 setPolling(false);
                 closeAllPCsAndRevokeSDP([pcRef.current]);
                 pcRef.current = null;
-                showToast("Max parent limit reached!");
-            } else showToast("Parent device got connected!");
+                showToast(t("baby.maxParents"));
+            } else showToast(t("baby.parentConnected"));
         }
     }
 
@@ -86,7 +88,7 @@ function BabyDevice({ showToast }) {
         const exists = acs.find(ac => ac.parentID === pc.parentID);
         if (exists) {
             setActiveConnections(acs.filter(ac => ac.parentID !== pc.parentID));
-            showToast("Parent device got disconnected!");
+            showToast(t("baby.parentDisconnected"));
         }
         if (settingsRef.current.restartPolling && !getPolling() && getIsLive() && getActiveConnections().length === 0) beginPolling();
         if (activeParentCameraRef.current === pc) {
@@ -139,7 +141,7 @@ function BabyDevice({ showToast }) {
 
     async function loadCameraStream() {
         if (cameraRef.current.count === 0) {
-            showToast("No camera found on this device!");
+            showToast(t("baby.noCamera"));
             return;
         }
         let retry = 2;
@@ -150,7 +152,7 @@ function BabyDevice({ showToast }) {
                 console.error(OverconstrainedError);
                 console.warn("Overriding user settings by switching to Front Camera!");
                 cameraRef.current.facingMode = "user";
-                showToast("Back camera is not available!");
+                showToast(t("baby.backCameraUnavailable"));
             }
             retry--;
         }
@@ -186,14 +188,14 @@ function BabyDevice({ showToast }) {
 
     async function flipCamera() {
         if (!videoRef.current.srcObject) {
-            showToast("Start the camera before flipping!");
+            showToast(t("baby.startBeforeFlip"));
             return;
         }
         if (cameraRef.current.count === 1) {
-            showToast("Cannot flip with single camera!");
+            showToast(t("baby.singleCamera"));
             return;
         }
-        setButton({ ...button, text: "Flipping...", disabled: true });
+        setButton({ ...button, text: t("baby.flipping"), disabled: true });
         cameraRef.current.facingMode = cameraRef.current.facingMode === "user" ? { exact: "environment" } : "user";
         const [oldCameraStream, oldVideoStream] = [cameraStreamRef.current, videoRef.current.srcObject];
         timestampRendererRef.current?.stop();
@@ -202,20 +204,20 @@ function BabyDevice({ showToast }) {
         await replaceTracksForAllConnections();
         oldVideoStream.getAudioTracks().forEach(track => videoRef.current.srcObject.addTrack(track));
         oldCameraStream.getTracks().forEach(track => track.stop());
-        setButton({ ...button, text: "Stop Camera", color: "#ff5b00", disabled: false });
-        showToast("Flipped to " + (cameraRef.current.facingMode === "user" ? "Front" : "Back") + " Camera!");
+        setButton({ ...button, text: t("baby.stop"), color: "#ff5b00", disabled: false });
+        showToast(t("baby.flipped", { side: t(cameraRef.current.facingMode === "user" ? "baby.front" : "baby.back") }));
     }
 
     async function stopCamera() {
         const parentCount = getActiveConnections().length;
         if (parentCount > 0) {
-            const cancel = !confirm("Disconnect all the parent devices?");
+            const cancel = !confirm(t("baby.disconnectAll"));
             if (cancel) return;
         }
-        setButton({ ...button, text: "Stopping...", disabled: true });
+        setButton({ ...button, text: t("baby.stopping"), disabled: true });
         cleanUp();
-        setButton({ text: "Start Camera", color: "#007bff", disabled: false, click: startCamera });
-        showToast("Camera stopped! " + (parentCount > 0 ? "All parents disconnected!" : "No parent connected!"));
+        setButton({ text: t("baby.start"), color: "#007bff", disabled: false, click: startCamera });
+        showToast(t(parentCount > 0 ? "baby.stoppedWithParents" : "baby.stoppedWithoutParents"));
     }
 
     const cleanUp = useCallback(() => {
@@ -233,7 +235,7 @@ function BabyDevice({ showToast }) {
 
     return (
         <div className="container-y no-select" style={{ height: "95vh", justifyContent: "center", alignItems: "center" }}>
-            <div className="text-title" style={{ marginBottom: "2em" }}>Baby Device</div>
+            <div className="text-title" style={{ marginBottom: "2em" }}>{t("baby.title")}</div>
 
             <div className="container-y" style={{ alignItems: "center", maxWidth: "90vw" }}>
                 <div className="container-x" style={{ height: "2.25em", justifyContent: "space-between" }}>
@@ -247,7 +249,7 @@ function BabyDevice({ showToast }) {
                                 <CameraOff style={{ marginRight: "0.4em" }} size={18} />
                                 <MicOff size={18} />
                             </span>}
-                        <div style={{ fontSize: "small" }}>sending</div>
+                        <div style={{ fontSize: "small" }}>{t("common.sending")}</div>
                     </div>
                     <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
                         {(polling || activeConnections.length > 0)
@@ -258,11 +260,11 @@ function BabyDevice({ showToast }) {
                                 </span>
                             </span>
                             : <span><Ban size={18} /></span>}
-                        <div style={{ fontSize: "small" }}>connections</div>
+                        <div style={{ fontSize: "small" }}>{t("common.connections")}</div>
                     </div>
                     <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
                         <span>{isMuted ? <VolumeOff size={18} /> : <Volume2 size={18} />}</span>
-                        <div style={{ fontSize: "small" }}>recieving</div>
+                        <div style={{ fontSize: "small" }}>{t("common.receiving")}</div>
                     </div>
                 </div>
 

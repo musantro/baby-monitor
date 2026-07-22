@@ -1,0 +1,39 @@
+{
+  "app": { "title": "Baby Monitor", "update": "A new update has been applied!\nReload the app now?" },
+  "common": { "sending": "sending", "receiving": "receiving", "connections": "connections", "disconnect": "Disconnect" },
+  "role": {
+    "browserId": "Browser ID", "help": "How to Use?", "install": "Install as PWA", "settings": "User Settings",
+    "select": "Select a Role for this Device", "babyPrefix": "Use as", "baby": "Baby Device", "babyDetail": "(Camera/Mic)",
+    "parentPrefix": "Use as", "parent": "Parent Device", "parentDetail": "(Live Stream)", "installUnavailable": "Not approved by the browser yet!"
+  },
+  "settings": {
+    "title": "User Settings", "frontCamera": "Start With Front Camera", "maxParents": "Max Parent Connections",
+    "pollingTimeout": "Polling Timeout (minutes)", "restartPolling": "Restart Polling Automatically", "pushToTalk": "Use Push-To-Talk Feature",
+    "timestamp": "Show Video Timestamp", "trustedParents": "Trusted Parent Devices", "forgetAll": "Forget All", "save": "Save Settings",
+    "restore": "Restore Defaults", "unchanged": "Settings not changed!", "saved": "Settings saved!", "restored": "Restored default settings!"
+  },
+  "baby": {
+    "title": "Baby Device", "start": "Start Camera", "starting": "Starting...", "stop": "Stop Camera", "stopping": "Stopping...", "flipping": "Flipping...",
+    "pollingStopped": "Polling stopped!", "waiting": "Waiting for parent connections!",
+    "unknownParent": "Unknown parent {{parentId}} wants to connect!\nAccept connection and mark as trusted parent?",
+    "maxParents": "Max parent limit reached!", "parentConnected": "Parent device got connected!", "parentDisconnected": "Parent device got disconnected!",
+    "noCamera": "No camera found on this device!", "backCameraUnavailable": "Back camera is not available!",
+    "startBeforeFlip": "Start the camera before flipping!", "singleCamera": "Cannot flip with single camera!",
+    "flipped": "Flipped to {{side}} Camera!", "front": "Front", "back": "Back", "disconnectAll": "Disconnect all the parent devices?",
+    "stoppedWithParents": "Camera stopped! All parents disconnected!", "stoppedWithoutParents": "Camera stopped! No parent connected!"
+  },
+  "parent": {
+    "title": "Parent Device", "request": "Request Connection", "requesting": "Requesting...", "connecting": "Connecting...", "disconnecting": "Disconnecting...",
+    "requestFailed": "Connection request failed!", "noBaby": "No baby device online!", "connected": "Connected to the baby device!",
+    "disconnected": "Disconnected from the baby device!", "offline": "Baby device went offline!", "connectFirst": "Connect to the baby device first!",
+    "cameraVisible": "Parent camera is visible without audio.", "cameraFailed": "Could not start the parent camera.", "cameraStopped": "Parent camera stopped.",
+    "fullscreenUnavailable": "Cannot go fullscreen!", "fullscreen": "Watch Fullscreen", "silentVideo": "silent video",
+    "showCamera": "Show Parent Camera (Silent)", "stopCamera": "Stop Parent Camera"
+  },
+  "help": {
+    "title": "Baby Monitor - Local Help", "intro": "This application is designed to run within your local network.", "quickStart": "Quick Start",
+    "step1": "Open this app from the same server URL on all devices in your LAN.", "step2Before": "On one device, select", "step2Action": "Use as Baby Device", "step2After": "and start camera.",
+    "step3Before": "On parent devices, select", "step3Action": "Use as Parent Device", "step3After": "and request connection.",
+    "security": "Security Notes", "peerToPeer": "Audio/video stream is peer-to-peer (WebRTC).", "signalingBefore": "Server only handles signaling via", "firewall": "Deploy behind your local firewall to avoid WAN exposure.", "back": "Back to app"
+  }
+}

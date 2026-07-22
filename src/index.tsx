@@ -2,6 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from "./App";
 import './index.css';
+import i18n, { translate } from "./i18n";
+
+document.documentElement.lang = i18n.resolvedLanguage ?? "en-EN";
+document.title = translate("app.title");
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -18,7 +22,7 @@ if ("serviceWorker" in navigator) {
 
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data === "UPDATED") {
-          const accepted = confirm("New update has been applied!\nReload the app now?");
+          const accepted = confirm(translate("app.update"));
           if (accepted) window.location.reload();
           return;
         }

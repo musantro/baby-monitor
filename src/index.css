@@ -4,6 +4,11 @@ body {
     color: white;
 }
 
+.help-page { max-width: 860px; margin: 0 auto; padding: 24px; line-height: 1.5; }
+.help-page h1, .help-page h2 { color: white; }
+.help-page code { background: #222; padding: 2px 6px; border-radius: 4px; }
+.link-button { padding: 0; border: 0; background: none; color: #7cc8ff; cursor: pointer; font: inherit; text-decoration: underline; }
+
 .container-y {
     display: flex;
     flex-direction: column;

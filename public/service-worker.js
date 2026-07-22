@@ -1,7 +1,7 @@
 const APP_NAME = "baby-monitor";
 const APP_CACHE = APP_NAME + "-app-cache";
 const META_CACHE = APP_NAME + "-meta-cache";
-const PUBLIC_FILES = ["./index.html", "./manifest.json", "./favicon.png"];
+const PUBLIC_FILES = ["./index.html", "./manifest.json", "./manifest.es-ES.json", "./favicon.png"];
 
 async function postMessage(message) {
     const clients = await self.clients.matchAll({ type: "window" });
