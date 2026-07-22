@@ -6,6 +6,7 @@ export const defaultSettings: Readonly<Settings> = Object.freeze({
   pollingTimeout: 5,
   restartPolling: true,
   usePushToTalk: true,
+  showVideoTimestamp: true,
   trustedParents: [],
 });
 

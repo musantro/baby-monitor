@@ -58,6 +58,13 @@ function SettingsForm({ settings, onChange, onReset, onSave }: SettingsFormProps
           onChange={(value) => update("usePushToTalk", value)}
         />
       </Setting>
+      <Setting label="Show Video Timestamp" id="showVideoTimestamp">
+        <ToggleSwitch
+          id="showVideoTimestamp"
+          checked={settings.showVideoTimestamp}
+          onChange={(value) => update("showVideoTimestamp", value)}
+        />
+      </Setting>
       <div className="container-x setting">
         <label style={{ fontSize: "large" }}>
           Trusted Parent Devices <strong>({settings.trustedParents.length})</strong>

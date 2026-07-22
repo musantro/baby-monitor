@@ -4,6 +4,7 @@ export interface Settings {
   pollingTimeout: number;
   restartPolling: boolean;
   usePushToTalk: boolean;
+  showVideoTimestamp: boolean;
   trustedParents: number[];
 }
 

@@ -1,7 +1,7 @@
 import { Ban, Camera, CameraOff, Mic, MicOff, Users, Volume2, VolumeOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { attachDataChannel, createAndStoreOfferWhilePolling, closeAllPCsAndRevokeSDP, getNewPC, sendMessage, loadAndApplyAnswerWhilePolling } from "../services/connex";
-import { audioConfigs } from "../services/media";
+import { audioConfigs, createTimestampedMediaStream } from "../services/media";
 import { getSettings, setSettings } from "../services/settings";
 import useRefState from "../custom-hooks/useRefState";
 
@@ -11,6 +11,8 @@ function BabyDevice({ showToast }) {
     const videoRef = useRef(null);
     const cameraRef = useRef({ cameras: [], count: 0, facingMode: settingsRef.current.startWithFrontCamera ? "user" : { exact: "environment" } });
     const localStreamRef = useRef(null);
+    const cameraStreamRef = useRef(null);
+    const timestampRendererRef = useRef(null);
 
     const [isLive, setIsLive, getIsLive] = useRefState(false);
     const [polling, setPolling, getPolling] = useRefState(false);
@@ -123,14 +125,20 @@ function BabyDevice({ showToast }) {
             }
             retry--;
         }
+        cameraStreamRef.current = localStreamRef.current;
+        if (settingsRef.current.showVideoTimestamp) {
+            timestampRendererRef.current = await createTimestampedMediaStream(cameraStreamRef.current);
+            localStreamRef.current = timestampRendererRef.current.stream;
+        }
         videoRef.current.srcObject = new MediaStream(localStreamRef.current.getVideoTracks());
     }
 
     function stopMediaStreams() {
-        if (localStreamRef.current) {
-            localStreamRef.current.getTracks().forEach(track => track.stop());
-            localStreamRef.current = null;
-        }
+        timestampRendererRef.current?.stop();
+        timestampRendererRef.current = null;
+        if (cameraStreamRef.current) cameraStreamRef.current.getTracks().forEach(track => track.stop());
+        cameraStreamRef.current = null;
+        localStreamRef.current = null;
         if (videoRef.current?.srcObject) {
             videoRef.current.srcObject.getTracks().forEach(track => track.stop());
             videoRef.current.srcObject = null;
@@ -158,12 +166,13 @@ function BabyDevice({ showToast }) {
         }
         setButton({ ...button, text: "Flipping...", disabled: true });
         cameraRef.current.facingMode = cameraRef.current.facingMode === "user" ? { exact: "environment" } : "user";
-        const [oldLocalStream, oldVideoStream] = [localStreamRef.current, videoRef.current.srcObject];
+        const [oldCameraStream, oldVideoStream] = [cameraStreamRef.current, videoRef.current.srcObject];
+        timestampRendererRef.current?.stop();
+        timestampRendererRef.current = null;
         await loadCameraStream();
         await replaceTracksForAllConnections();
         oldVideoStream.getAudioTracks().forEach(track => videoRef.current.srcObject.addTrack(track));
-        oldVideoStream.getVideoTracks().forEach(track => track.stop());
-        oldLocalStream.getTracks().forEach(track => track.stop());
+        oldCameraStream.getTracks().forEach(track => track.stop());
         setButton({ ...button, text: "Stop Camera", color: "#ff5b00", disabled: false });
         showToast("Flipped to " + (cameraRef.current.facingMode === "user" ? "Front" : "Back") + " Camera!");
     }
