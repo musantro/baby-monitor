@@ -4,10 +4,11 @@ import BabyDevice from "./components/BabyDevice";
 import ParentDevice from "./components/ParentDevice";
 import SelectRole from "./components/SelectRole";
 import Settings from "./components/Settings";
+import Help from "./components/Help";
 
 function App() {
   const timeoutRef = useRef(null);
-  const [toast, setToast] = useState({ text: "Toast Message!", visible: false });
+  const [toast, setToast] = useState({ text: "", visible: false });
 
   useEffect(() => { takeWakeLock(); });
 
@@ -30,6 +31,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SelectRole showToast={showToast} />} />
         <Route path="/settings" element={<Settings showToast={showToast} />} />
+        <Route path="/help" element={<Help />} />
         <Route path="/baby-device" element={<BabyDevice showToast={showToast} />} />
         <Route path="/parent-device" element={<ParentDevice showToast={showToast} />} />
       </Routes>

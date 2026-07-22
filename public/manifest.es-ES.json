@@ -1,7 +1,7 @@
 {
-    "name": "Baby Monitor",
-    "short_name": "Baby Monitor",
-    "lang": "en-EN",
+    "name": "Vigilabebés",
+    "short_name": "Vigilabebés",
+    "lang": "es-ES",
     "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#000",

@@ -1,0 +1,39 @@
+{
+  "app": { "title": "Vigilabebés", "update": "¡Se ha aplicado una nueva actualización!\n¿Quieres recargar la aplicación ahora?" },
+  "common": { "sending": "enviando", "receiving": "recibiendo", "connections": "conexiones", "disconnect": "Desconectar" },
+  "role": {
+    "browserId": "ID del navegador", "help": "¿Cómo se usa?", "install": "Instalar como PWA", "settings": "Ajustes de usuario",
+    "select": "Selecciona el rol de este dispositivo", "babyPrefix": "Usar como", "baby": "dispositivo del bebé", "babyDetail": "(cámara/micrófono)",
+    "parentPrefix": "Usar como", "parent": "dispositivo parental", "parentDetail": "(vídeo en directo)", "installUnavailable": "¡El navegador aún no lo ha autorizado!"
+  },
+  "settings": {
+    "title": "Ajustes de usuario", "frontCamera": "Iniciar con la cámara frontal", "maxParents": "Máximo de conexiones parentales",
+    "pollingTimeout": "Tiempo de espera de búsqueda (minutos)", "restartPolling": "Reiniciar la búsqueda automáticamente", "pushToTalk": "Usar la función Pulsar para hablar",
+    "timestamp": "Mostrar fecha y hora en el vídeo", "trustedParents": "Dispositivos parentales de confianza", "forgetAll": "Olvidar todos", "save": "Guardar ajustes",
+    "restore": "Restaurar valores", "unchanged": "¡Los ajustes no han cambiado!", "saved": "¡Ajustes guardados!", "restored": "¡Se han restaurado los ajustes predeterminados!"
+  },
+  "baby": {
+    "title": "Dispositivo del bebé", "start": "Iniciar cámara", "starting": "Iniciando...", "stop": "Detener cámara", "stopping": "Deteniendo...", "flipping": "Cambiando cámara...",
+    "pollingStopped": "¡Búsqueda detenida!", "waiting": "¡Esperando conexiones parentales!",
+    "unknownParent": "¡El dispositivo parental desconocido {{parentId}} quiere conectarse!\n¿Aceptar la conexión y marcarlo como dispositivo de confianza?",
+    "maxParents": "¡Se alcanzó el límite de dispositivos parentales!", "parentConnected": "¡Dispositivo parental conectado!", "parentDisconnected": "¡Dispositivo parental desconectado!",
+    "noCamera": "¡No se encontró ninguna cámara en este dispositivo!", "backCameraUnavailable": "¡La cámara trasera no está disponible!",
+    "startBeforeFlip": "¡Inicia la cámara antes de cambiarla!", "singleCamera": "¡No se puede cambiar porque sólo hay una cámara!",
+    "flipped": "¡Cambiada a la cámara {{side}}!", "front": "frontal", "back": "trasera", "disconnectAll": "¿Desconectar todos los dispositivos parentales?",
+    "stoppedWithParents": "¡Cámara detenida! ¡Todos los dispositivos parentales se han desconectado!", "stoppedWithoutParents": "¡Cámara detenida! No había dispositivos parentales conectados."
+  },
+  "parent": {
+    "title": "Dispositivo parental", "request": "Solicitar conexión", "requesting": "Solicitando...", "connecting": "Conectando...", "disconnecting": "Desconectando...",
+    "requestFailed": "¡La solicitud de conexión ha fallado!", "noBaby": "¡No hay ningún dispositivo del bebé en línea!", "connected": "¡Conectado al dispositivo del bebé!",
+    "disconnected": "¡Desconectado del dispositivo del bebé!", "offline": "¡El dispositivo del bebé se desconectó!", "connectFirst": "¡Conéctate primero al dispositivo del bebé!",
+    "cameraVisible": "La cámara parental está visible sin audio.", "cameraFailed": "No se pudo iniciar la cámara parental.", "cameraStopped": "Cámara parental detenida.",
+    "fullscreenUnavailable": "¡No se puede abrir a pantalla completa!", "fullscreen": "Ver a pantalla completa", "silentVideo": "vídeo sin audio",
+    "showCamera": "Mostrar cámara parental (sin audio)", "stopCamera": "Detener cámara parental"
+  },
+  "help": {
+    "title": "Vigilabebés - Ayuda local", "intro": "Esta aplicación está diseñada para funcionar dentro de tu red local.", "quickStart": "Inicio rápido",
+    "step1": "Abre esta aplicación desde la misma URL del servidor en todos los dispositivos de tu red local.", "step2Before": "En un dispositivo, selecciona", "step2Action": "Usar como dispositivo del bebé", "step2After": "e inicia la cámara.",
+    "step3Before": "En los dispositivos parentales, selecciona", "step3Action": "Usar como dispositivo parental", "step3After": "y solicita la conexión.",
+    "security": "Notas de seguridad", "peerToPeer": "La transmisión de audio y vídeo es de igual a igual (WebRTC).", "signalingBefore": "El servidor sólo gestiona la señalización mediante", "firewall": "Despliega la aplicación detrás de tu cortafuegos local para evitar la exposición a Internet.", "back": "Volver a la aplicación"
+  }
+}

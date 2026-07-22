@@ -6,7 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Baby Monitor</title>
   <link rel="icon" href="/favicon.png" type="image/png">
-  <link rel="manifest" href="/manifest.json" />
+  <link id="app-manifest" rel="manifest" href="/manifest.json" />
+  <script>
+    if ((navigator.languages?.length ? navigator.languages : [navigator.language]).some(language => language?.toLowerCase().startsWith("es"))) {
+      document.querySelector("#app-manifest").href = "/manifest.es-ES.json";
+    }
+  </script>
 </head>
 
 <body>

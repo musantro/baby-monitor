@@ -29,6 +29,7 @@
     "src/services/settings.ts",
     "src/custom-hooks/useRefState.ts",
     "src/custom-hooks/useSettings.ts",
+    "src/i18n.ts",
     "src/components/NumberInput.tsx",
     "src/components/ToggleSwitch.tsx",
     "src/components/Settings.tsx",

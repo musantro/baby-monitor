@@ -2,6 +2,7 @@ import NumberInput from "./NumberInput";
 import ToggleSwitch from "./ToggleSwitch";
 import type { PropsWithChildren } from "react";
 import type { Settings } from "../domain/types";
+import { useTranslation } from "../i18n";
 
 interface SettingsFormProps {
   settings: Settings;
@@ -11,22 +12,23 @@ interface SettingsFormProps {
 }
 
 function SettingsForm({ settings, onChange, onReset, onSave }: SettingsFormProps) {
+  const t = useTranslation();
   const update = <Key extends keyof Settings>(key: Key, value: Settings[Key]) =>
     onChange({ ...settings, [key]: value });
 
   return (
     <div className="container-y" style={styles.container}>
       <div className="text-title" style={{ marginBottom: "1.5em" }}>
-        User Settings
+        {t("settings.title")}
       </div>
-      <Setting label="Start With Front Camera" id="startWithFrontCamera">
+      <Setting label={t("settings.frontCamera")} id="startWithFrontCamera">
         <ToggleSwitch
           id="startWithFrontCamera"
           checked={settings.startWithFrontCamera}
           onChange={(value) => update("startWithFrontCamera", value)}
         />
       </Setting>
-      <Setting label="Max Parent Connections" id="maxParentConnections">
+      <Setting label={t("settings.maxParents")} id="maxParentConnections">
         <NumberInput
           id="maxParentConnections"
           min={1}
@@ -35,7 +37,7 @@ function SettingsForm({ settings, onChange, onReset, onSave }: SettingsFormProps
           onChange={(value) => update("maxParentConnections", value)}
         />
       </Setting>
-      <Setting label="Polling Timeout (minutes)" id="pollingTimeout">
+      <Setting label={t("settings.pollingTimeout")} id="pollingTimeout">
         <NumberInput
           id="pollingTimeout"
           min={1}
@@ -44,21 +46,21 @@ function SettingsForm({ settings, onChange, onReset, onSave }: SettingsFormProps
           onChange={(value) => update("pollingTimeout", value)}
         />
       </Setting>
-      <Setting label="Restart Polling Automatically" id="restartPolling">
+      <Setting label={t("settings.restartPolling")} id="restartPolling">
         <ToggleSwitch
           id="restartPolling"
           checked={settings.restartPolling}
           onChange={(value) => update("restartPolling", value)}
         />
       </Setting>
-      <Setting label="Use Push-To-Talk Feature" id="usePushToTalk">
+      <Setting label={t("settings.pushToTalk")} id="usePushToTalk">
         <ToggleSwitch
           id="usePushToTalk"
           checked={settings.usePushToTalk}
           onChange={(value) => update("usePushToTalk", value)}
         />
       </Setting>
-      <Setting label="Show Video Timestamp" id="showVideoTimestamp">
+      <Setting label={t("settings.timestamp")} id="showVideoTimestamp">
         <ToggleSwitch
           id="showVideoTimestamp"
           checked={settings.showVideoTimestamp}
@@ -67,23 +69,23 @@ function SettingsForm({ settings, onChange, onReset, onSave }: SettingsFormProps
       </Setting>
       <div className="container-x setting">
         <label style={{ fontSize: "large" }}>
-          Trusted Parent Devices <strong>({settings.trustedParents.length})</strong>
+          {t("settings.trustedParents")} <strong>({settings.trustedParents.length})</strong>
         </label>
         <input
           type="button"
           className="button"
           style={styles.forgetButton}
-          value="Forget All"
+          value={t("settings.forgetAll")}
           disabled={settings.trustedParents.length === 0}
           onClick={() => update("trustedParents", [])}
         />
       </div>
       <div className="container-x" style={styles.actions}>
         <button onClick={onSave} className="button">
-          Save Settings
+          {t("settings.save")}
         </button>
         <button onClick={onReset} className="button">
-          Restore Defaults
+          {t("settings.restore")}
         </button>
       </div>
     </div>
