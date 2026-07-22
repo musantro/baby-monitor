@@ -71,6 +71,16 @@ export async function createTimestampedMediaStream(sourceStream: MediaStream) {
   };
 }
 
+/** Creates a negligible placeholder used to negotiate a return video track. */
+export function createPlaceholderVideoStream() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 2;
+  canvas.height = 2;
+  const context = canvas.getContext("2d");
+  context?.fillRect(0, 0, 2, 2);
+  return canvas.captureStream(1);
+}
+
 export async function getAudioAmplifiedMediaStream(mediaConfigs, gainValue = 10) {
   if (!mediaConfigs) throw new Error("error: mediaConfigs is required");
   if (!gainValue || gainValue < 1) gainValue = 1.0; // default no change

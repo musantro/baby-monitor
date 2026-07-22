@@ -1,34 +1,30 @@
-import { Fullscreen, Mic, MicOff, Video, VideoOff, Volume2, VolumeOff } from "lucide-react";
+import { Camera, CameraOff, Fullscreen, Video, VideoOff, Volume2, VolumeOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { attachDataChannel, getNewPC, loadSDP, sendMessage, storeSDP, waitForIceGatheringCompletion } from "../services/connex";
-import { audioConfigs } from "../services/media";
-import { getBrowserID, getSettings } from "../services/settings";
+import { createPlaceholderVideoStream } from "../services/media";
+import { getBrowserID } from "../services/settings";
 
 function ParentDevice({ showToast }) {
     const pcRef = useRef(null);
     const videoRef = useRef(null);
-    const settingsRef = useRef(getSettings());
-    const micRef = useRef({ stream: null, track: null });
+    const placeholderStreamRef = useRef(null);
+    const parentCameraStreamRef = useRef(null);
 
     const [button, setButton] = useState({ text: "Request Connection", color: "#007bff", disabled: false, click: requestConnection });
     const [isLive, setIsLive] = useState(false);
-    const [isMuted, setIsMuted] = useState(false);
+    const [isParentCameraActive, setIsParentCameraActive] = useState(false);
 
     async function requestConnection() {
         setButton({ text: "Requesting...", disabled: true });
-        if (settingsRef.current.usePushToTalk && !micRef.current.stream) {
-            micRef.current.stream = await navigator.mediaDevices.getUserMedia({ audio: audioConfigs });
-            micRef.current.track = micRef.current.stream.getAudioTracks()[0];
-        }
         if (!pcRef.current) setupPeerConnectionRef();
         await loadOfferAndStoreAnswer();
     }
 
     function setupPeerConnectionRef() {
         if (pcRef.current?.connectionState === "connected") return;
-        pcRef.current = getNewPC({ onConnect, onDisconnect, onTrack, stream: micRef.current.stream });
+        placeholderStreamRef.current = createPlaceholderVideoStream();
+        pcRef.current = getNewPC({ onConnect, onDisconnect, onTrack, stream: placeholderStreamRef.current });
         attachDataChannel(pcRef.current, null, onMessage);
-        if (micRef.current.track) micRef.current.track.enabled = false;
     }
 
     async function loadOfferAndStoreAnswer() {
@@ -57,6 +53,7 @@ function ParentDevice({ showToast }) {
         if (typeof toastMsg !== "string") toastMsg = "Disconnected from the baby device!";
         setButton({ ...button, text: "Disconnecting...", color: "#ff5b00", disabled: true });
         if (pcRef.current) {
+            stopParentCamera(false);
             sendMessage("DISCONNECT", pcRef.current);
             pcRef.current.close();
         }
@@ -79,18 +76,39 @@ function ParentDevice({ showToast }) {
         console.warn("Unknown Signal: " + message);
     }
 
-    function pushToTalk(isPushed) {
-        if (!videoRef.current.srcObject) return;
-        if (!settingsRef.current.usePushToTalk) {
-            if (isPushed) showToast("Push-To-Talk is disabled!");
+    async function startParentCamera() {
+        if (pcRef.current?.connectionState !== "connected") {
+            showToast("Connect to the baby device first!");
             return;
         }
-        setIsMuted(isPushed);
-        micRef.current.track.enabled = isPushed;
-        sendMessage(isPushed ? "UNMUTE" : "MUTE", pcRef.current);
-        const classList = videoRef.current.classList;
-        isPushed ? classList.add("border-glow") : classList.remove("border-glow");
-        showToast(isPushed ? "Baby can hear you now!" : "You can hear the baby!");
+        try {
+            const cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+            parentCameraStreamRef.current = cameraStream;
+            const cameraTrack = cameraStream.getVideoTracks()[0];
+            if (!cameraTrack) throw new Error("No parent camera track is available");
+            const videoSender = pcRef.current.getSenders().find((sender) => sender.track?.kind === "video");
+            if (!videoSender) throw new Error("The return video channel was not negotiated");
+            await videoSender.replaceTrack(cameraTrack);
+            sendMessage("PARENT_CAMERA_START", pcRef.current);
+            setIsParentCameraActive(true);
+            showToast("Parent camera is visible without audio.");
+        } catch (error) {
+            console.error(error);
+            stopParentCamera(false);
+            showToast("Could not start the parent camera.");
+        }
+    }
+
+    async function stopParentCamera(notify = true) {
+        const cameraStream = parentCameraStreamRef.current;
+        parentCameraStreamRef.current = null;
+        const placeholderTrack = placeholderStreamRef.current?.getVideoTracks()[0];
+        const videoSender = pcRef.current?.getSenders().find((sender) => sender.track?.kind === "video");
+        if (videoSender && placeholderTrack) await videoSender.replaceTrack(placeholderTrack);
+        cameraStream?.getTracks().forEach((track) => track.stop());
+        if (pcRef.current) sendMessage("PARENT_CAMERA_STOP", pcRef.current);
+        setIsParentCameraActive(false);
+        if (notify) showToast("Parent camera stopped.");
     }
 
     function fullScreen() {
@@ -112,7 +130,8 @@ function ParentDevice({ showToast }) {
             videoRef.current.srcObject.getTracks().forEach(track => track.stop());
             videoRef.current.srcObject = null;
         }
-        if (micRef.current.track) micRef.current.track.stop();
+        stopParentCamera(false);
+        placeholderStreamRef.current?.getTracks().forEach(track => track.stop());
     }, []);
 
     useEffect(() => { return cleanUp; }, [cleanUp]);
@@ -124,8 +143,8 @@ function ParentDevice({ showToast }) {
             <div className="container-y" style={{ alignItems: "center", maxWidth: "90vw" }}>
                 <div className="container-x" style={{ height: "2.25em", justifyContent: "space-between" }}>
                     <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
-                        <span>{isMuted ? <Mic size={18} /> : <MicOff size={18} />}</span>
-                        <div style={{ fontSize: "small" }}>sending</div>
+                        <span>{isParentCameraActive ? <Camera size={18} /> : <CameraOff size={18} />}</span>
+                        <div style={{ fontSize: "small" }}>silent video</div>
                     </div>
                     <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
                         <Fullscreen onClick={() => fullScreen()} style={{ marginLeft: "0.4em", color: isLive ? "white" : "lightgray" }} size={34}>
@@ -136,7 +155,7 @@ function ParentDevice({ showToast }) {
                         {isLive
                             ? <span>
                                 <Video style={{ marginRight: "0.4em" }} size={18} />
-                                {isMuted ? <VolumeOff size={18} /> : <Volume2 size={18} />}
+                                <Volume2 size={18} />
                             </span>
                             : <span>
                                 <VideoOff style={{ marginRight: "0.4em" }} size={18} />
@@ -146,11 +165,12 @@ function ParentDevice({ showToast }) {
                     </div>
                 </div>
 
-                <video ref={videoRef} muted={isMuted} onPause={() => videoRef.current?.play()}
-                    onMouseDown={() => pushToTalk(true)} onMouseUp={() => pushToTalk(false)}
-                    onTouchStart={() => pushToTalk(true)} onTouchEnd={() => pushToTalk(false)}
-                    autoPlay playsInline className="video">
-                </video>
+                <video ref={videoRef} onPause={() => videoRef.current?.play()} autoPlay playsInline className="video" />
+
+                {isLive && <button onClick={isParentCameraActive ? () => stopParentCamera() : startParentCamera}
+                    style={{ background: isParentCameraActive ? "#ff5b00" : "#007bff", width: "auto", marginBottom: "0.75em" }} className="button">
+                    {isParentCameraActive ? "Stop Parent Camera" : "Show Parent Camera (Silent)"}
+                </button>}
 
                 <button onClick={button.click} disabled={button.disabled} style={{ background: button.color, width: "auto" }} className="button">
                     {button.text}

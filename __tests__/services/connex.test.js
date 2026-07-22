@@ -48,7 +48,7 @@ describe("signalling service", () => {
     expect(pc.addTrack).toHaveBeenCalledWith(track, expect.any(Object));
     expect(onConnect).toHaveBeenCalledWith(pc);
     expect(onDisconnect).toHaveBeenCalledWith(pc);
-    expect(onTrack).toHaveBeenCalledWith("event");
+    expect(onTrack).toHaveBeenCalledWith("event", pc);
   });
 
   test("attaches outgoing and incoming data channels", () => {

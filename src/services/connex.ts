@@ -25,7 +25,7 @@ export function getNewPC({ onConnect, onDisconnect, onTrack, stream }) {
     if (["disconnected", "closed", "failed"].includes(pc.connectionState)) onDisconnect(pc);
   };
   if (stream) stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-  if (onTrack) pc.ontrack = (event) => onTrack(event);
+  if (onTrack) pc.ontrack = (event) => onTrack(event, pc);
   return pc;
 }
 
