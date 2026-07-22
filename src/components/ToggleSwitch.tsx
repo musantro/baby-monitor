@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
-function ToggleSwitch({ checked, onChange, id }) {
+interface ToggleSwitchProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  id: string;
+}
+
+function ToggleSwitch({ checked, onChange, id }: ToggleSwitchProps) {
     const [isChecked, setIsChecked] = useState(checked);
 
     useEffect(() => setIsChecked(checked), [checked]);
@@ -27,7 +33,7 @@ function ToggleSwitch({ checked, onChange, id }) {
 
 export default ToggleSwitch;
 
-const outerDiv = {
+const outerDiv: CSSProperties = {
     width: "60px", height: "30px",
     margin: "0", padding: "0",
     background: "white",
@@ -36,7 +42,7 @@ const outerDiv = {
     transition: "border 150ms ease-in-out"
 };
 
-const innerDiv = {
+const innerDiv: CSSProperties = {
     position: "relative",
     width: "26px", height: "26px",
     margin: "0", padding: "0",
@@ -44,7 +50,7 @@ const innerDiv = {
     transition: "transform 150ms ease-in-out"
 };
 
-const fakeInputStyle = {
+const fakeInputStyle: CSSProperties = {
     display: "none",
     width: "0", height: "0",
     margin: "0", padding: "0"

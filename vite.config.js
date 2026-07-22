@@ -1,12 +1,17 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    "globalThis.VITE_SIGNALING_BASE_URL": JSON.stringify(
+      process.env.VITE_SIGNALING_BASE_URL ?? "/api/v1",
+    ),
+  },
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://localhost:8080"
-    }
-  }
+      "/api": "http://localhost:8080",
+    },
+  },
 });
