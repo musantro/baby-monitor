@@ -1,6 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
-function NumberInput({ value, min, max, onChange, id }) {
+interface NumberInputProps {
+  value?: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+  id: string;
+}
+
+function NumberInput({ value, min, max, onChange, id }: NumberInputProps) {
     const [number, setNumber] = useState(value ?? min ?? max ?? 0);
 
     useEffect(() => setNumber(value ?? min ?? max ?? 0), [value, min, max]);
@@ -34,12 +42,12 @@ function NumberInput({ value, min, max, onChange, id }) {
 
 export default NumberInput;
 
-const container = {
+const container: CSSProperties = {
     display: "flex", justifyContent: "center", alignItems: "center",
     width: "auto", height: "40px",
 };
 
-const input = {
+const input: CSSProperties = {
     width: "2ch", height: "40px",
     margin: "0", padding: "0px 5px",
     background: "white", color: "black",

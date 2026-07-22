@@ -1,13 +1,14 @@
 import { useState, useRef, useCallback } from "react";
 
-function useRefState(defaultValue) {
+function useRefState<T>(defaultValue: T): [T, (valueOrUpdater: T | ((previous: T) => T)) => void, () => T] {
   const [state, setState] = useState(defaultValue);
   const ref = useRef(defaultValue);
 
-  const setValue = useCallback((valueOrUpdater) => {
+  const setValue = useCallback((valueOrUpdater: T | ((previous: T) => T)) => {
     if (typeof valueOrUpdater === "function") {
-      setState(prev => {
-        const newValue = valueOrUpdater(prev);
+      const updater = valueOrUpdater as (previous: T) => T;
+      setState((prev) => {
+        const newValue = updater(prev);
         ref.current = newValue;
         return newValue;
       });
