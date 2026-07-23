@@ -106,13 +106,12 @@ h1 { margin: 12px 0; font-size: clamp(32px, 5vw, 52px); line-height: 1.06; lette
 }
 .video { display: block; width: 100%; height: 100%; margin: 0; border: 0; object-fit: cover; }
 .baby-camera-placeholder, .parent-feed-placeholder, .parent-camera-placeholder {
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: auto 145%;
+  background:
+    radial-gradient(circle at 52% 58%, rgba(206, 189, 255, 0.13), transparent 18%),
+    linear-gradient(145deg, rgba(87, 241, 219, 0.08), transparent 45%),
+    repeating-linear-gradient(90deg, transparent 0 52px, rgba(218, 226, 253, 0.025) 53px 54px),
+    #060e20;
 }
-.baby-camera-placeholder { background-image: url("/images/nocturne/baby-sleeping.jpg"); }
-.parent-feed-placeholder { background-image: url("/images/nocturne/nursery-wide.jpg"); background-size: auto 160%; background-position: center 48%; }
-.parent-camera-placeholder { background-image: url("/images/nocturne/parent-resting.jpg"); }
 .video-scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, transparent 56%, rgba(6,14,32,.72)); }
 .video-label { position: absolute; left: 18px; bottom: 16px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
 .live-dot, .standby-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 12px var(--primary); }
