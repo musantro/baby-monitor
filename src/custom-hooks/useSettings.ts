@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { getSettings, isChanged, resetSettings, setSettings } from "../services/settings";
 import useRefState from "./useRefState";
 import { useTranslation } from "../i18n";
@@ -22,8 +22,6 @@ export default function useSettings(showToast: (message: string) => void) {
     setSettingsState(getSettings());
     showToast(t("settings.restored"));
   }, [setSettingsState, showToast, t]);
-
-  useEffect(() => save, [save]);
 
   return { settings, setSettings: setSettingsState, getSettings: getSettingsState, reset, save };
 }

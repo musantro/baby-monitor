@@ -1,16 +1,18 @@
 {
   "app": { "title": "Vigilabebés", "update": "¡Se ha aplicado una nueva actualización!\n¿Quieres recargar la aplicación ahora?" },
-  "common": { "sending": "enviando", "receiving": "recibiendo", "connections": "conexiones", "disconnect": "Desconectar" },
+  "common": { "sending": "Enviando", "receiving": "Recibiendo", "connections": "Conexiones", "disconnect": "Desconectar", "live": "En directo", "standby": "En espera", "video": "Vídeo", "audio": "Audio" },
   "role": {
     "browserId": "ID del navegador", "help": "¿Cómo se usa?", "install": "Instalar como PWA", "settings": "Ajustes de usuario",
     "select": "Selecciona el rol de este dispositivo", "babyPrefix": "Usar como", "baby": "dispositivo del bebé", "babyDetail": "(cámara/micrófono)",
-    "parentPrefix": "Usar como", "parent": "dispositivo parental", "parentDetail": "(vídeo en directo)", "installUnavailable": "¡El navegador aún no lo ha autorizado!"
+    "parentPrefix": "Usar como", "parent": "dispositivo parental", "parentDetail": "(vídeo en directo)", "installUnavailable": "¡El navegador aún no lo ha autorizado!",
+    "privateNetwork": "Privado por diseño", "subtitle": "Elige cómo se conectará este dispositivo a tu monitor seguro de igual a igual.", "babyDescription": "Comparte la cámara y el micrófono de este dispositivo desde la habitación.", "parentDescription": "Ve y escucha la transmisión en directo desde tu red local."
   },
   "settings": {
     "title": "Ajustes de usuario", "frontCamera": "Iniciar con la cámara frontal", "maxParents": "Máximo de conexiones parentales",
     "pollingTimeout": "Tiempo de espera de búsqueda (minutos)", "restartPolling": "Reiniciar la búsqueda automáticamente", "pushToTalk": "Usar la función Pulsar para hablar",
     "timestamp": "Mostrar fecha y hora en el vídeo", "trustedParents": "Dispositivos parentales de confianza", "forgetAll": "Olvidar todos", "save": "Guardar ajustes",
-    "restore": "Restaurar valores", "unchanged": "¡Los ajustes no han cambiado!", "saved": "¡Ajustes guardados!", "restored": "¡Se han restaurado los ajustes predeterminados!"
+    "restore": "Restaurar valores", "unchanged": "¡Los ajustes no han cambiado!", "saved": "¡Ajustes guardados!", "restored": "¡Se han restaurado los ajustes predeterminados!",
+    "preferences": "Preferencias del monitor", "subtitle": "Configura cómo se conectan los dispositivos y cómo se comporta la cámara.", "frontCameraHint": "Usa la cámara frontal al iniciar el monitor.", "maxParentsHint": "Limita los espectadores simultáneos de la transmisión.", "pollingTimeoutHint": "Tiempo de espera de un dispositivo parental.", "restartPollingHint": "Reanuda la búsqueda al desconectarse el último dispositivo.", "pushToTalkHint": "Mantén pulsado el vídeo para hablar con el bebé.", "timestampHint": "Muestra la fecha y hora local en la transmisión.", "trustedParentsHint": "Dispositivos aceptados y recordados por el monitor."
   },
   "baby": {
     "title": "Dispositivo del bebé", "start": "Iniciar cámara", "starting": "Iniciando...", "stop": "Detener cámara", "stopping": "Deteniendo...", "flipping": "Cambiando cámara...",
@@ -20,7 +22,7 @@
     "noCamera": "¡No se encontró ninguna cámara en este dispositivo!", "backCameraUnavailable": "¡La cámara trasera no está disponible!",
     "startBeforeFlip": "¡Inicia la cámara antes de cambiarla!", "singleCamera": "¡No se puede cambiar porque sólo hay una cámara!",
     "flipped": "¡Cambiada a la cámara {{side}}!", "front": "frontal", "back": "trasera", "disconnectAll": "¿Desconectar todos los dispositivos parentales?",
-    "stoppedWithParents": "¡Cámara detenida! ¡Todos los dispositivos parentales se han desconectado!", "stoppedWithoutParents": "¡Cámara detenida! No había dispositivos parentales conectados."
+    "stoppedWithParents": "¡Cámara detenida! ¡Todos los dispositivos parentales se han desconectado!", "stoppedWithoutParents": "¡Cámara detenida! No había dispositivos parentales conectados.", "flip": "Cambiar cámara", "cameraPreview": "Cámara de la habitación"
   },
   "parent": {
     "title": "Dispositivo parental", "request": "Solicitar conexión", "requesting": "Solicitando...", "connecting": "Conectando...", "disconnecting": "Desconectando...",
@@ -28,7 +30,7 @@
     "disconnected": "¡Desconectado del dispositivo del bebé!", "offline": "¡El dispositivo del bebé se desconectó!", "connectFirst": "¡Conéctate primero al dispositivo del bebé!",
     "cameraVisible": "La cámara parental está visible sin audio.", "cameraFailed": "No se pudo iniciar la cámara parental.", "cameraStopped": "Cámara parental detenida.",
     "fullscreenUnavailable": "¡No se puede abrir a pantalla completa!", "fullscreen": "Ver a pantalla completa", "silentVideo": "vídeo sin audio",
-    "showCamera": "Mostrar cámara parental (sin audio)", "stopCamera": "Detener cámara parental"
+    "showCamera": "Mostrar cámara parental (sin audio)", "stopCamera": "Detener cámara parental", "babyRoom": "Habitación del bebé"
   },
   "help": {
     "title": "Vigilabebés - Ayuda local", "intro": "Esta aplicación está diseñada para funcionar dentro de tu red local.", "quickStart": "Inicio rápido",

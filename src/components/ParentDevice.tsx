@@ -1,9 +1,10 @@
-import { Camera, CameraOff, Fullscreen, Video, VideoOff, Volume2, VolumeOff } from "lucide-react";
+import { Camera, CameraOff, Fullscreen, Radio, Video, VideoOff, Volume2, VolumeOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { attachDataChannel, getNewPC, loadSDP, sendMessage, storeSDP, waitForIceGatheringCompletion } from "../services/connex";
 import { createPlaceholderVideoStream } from "../services/media";
 import { getBrowserID } from "../services/settings";
 import { useTranslation } from "../i18n";
+import AppHeader from "./AppHeader";
 
 function ParentDevice({ showToast }) {
     const t = useTranslation();
@@ -139,45 +140,38 @@ function ParentDevice({ showToast }) {
     useEffect(() => { return cleanUp; }, [cleanUp]);
 
     return (
-        <div className="container-y no-select" style={{ height: "95vh", justifyContent: "center", alignItems: "center" }}>
-            <div className="text-title" style={{ marginBottom: "2em" }}>{t("parent.title")}</div>
-
-            <div className="container-y" style={{ alignItems: "center", maxWidth: "90vw" }}>
-                <div className="container-x" style={{ height: "2.25em", justifyContent: "space-between" }}>
-                    <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
-                        <span>{isParentCameraActive ? <Camera size={18} /> : <CameraOff size={18} />}</span>
-                        <div style={{ fontSize: "small" }}>{t("parent.silentVideo")}</div>
+        <div className="app-page monitor-page no-select">
+            <AppHeader back />
+            <main className="monitor-layout">
+                <section className="monitor-heading">
+                    <div>
+                        <span className={`status-badge ${isLive ? "is-live" : ""}`}><Radio size={14} /> {isLive ? t("common.live") : t("common.standby")}</span>
+                        <h1>{t("parent.title")}</h1>
                     </div>
-                    <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
-                        <Fullscreen onClick={() => fullScreen()} style={{ marginLeft: "0.4em", color: isLive ? "white" : "lightgray" }} size={34}>
-                            <title>{t("parent.fullscreen")}</title>
-                        </Fullscreen>
-                    </div>
-                    <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
-                        {isLive
-                            ? <span>
-                                <Video style={{ marginRight: "0.4em" }} size={18} />
-                                <Volume2 size={18} />
-                            </span>
-                            : <span>
-                                <VideoOff style={{ marginRight: "0.4em" }} size={18} />
-                                <VolumeOff size={18} />
-                            </span>}
-                        <div style={{ fontSize: "small" }}>{t("common.receiving")}</div>
-                    </div>
+                    <button className="icon-button" onClick={fullScreen} disabled={!isLive} aria-label={t("parent.fullscreen")}>
+                        <Fullscreen size={20} />
+                    </button>
+                </section>
+                <section className="video-shell parent-feed">
+                    <video ref={videoRef} onPause={() => videoRef.current?.play()} autoPlay playsInline className="video parent-feed-placeholder" />
+                    <div className="video-scrim" />
+                    <div className="video-label"><span className={isLive ? "live-dot" : "standby-dot"} /> {t("parent.babyRoom")}</div>
+                </section>
+                <section className="status-grid">
+                    <div className="status-card">{isParentCameraActive ? <Camera size={20} /> : <CameraOff size={20} />}<span>{t("parent.silentVideo")}</span></div>
+                    <div className="status-card">{isLive ? <Video size={20} /> : <VideoOff size={20} />}<span>{t("common.video")}</span></div>
+                    <div className="status-card">{isLive ? <Volume2 size={20} /> : <VolumeOff size={20} />}<span>{t("common.audio")}</span></div>
+                </section>
+                <div className="monitor-actions">
+                    {isLive && <button onClick={isParentCameraActive ? () => stopParentCamera() : startParentCamera}
+                        className="button button-secondary">
+                        {t(isParentCameraActive ? "parent.stopCamera" : "parent.showCamera")}
+                    </button>}
+                    <button onClick={button.click} disabled={button.disabled} className={`button ${isLive ? "button-danger" : ""}`}>
+                        {button.text}
+                    </button>
                 </div>
-
-                <video ref={videoRef} onPause={() => videoRef.current?.play()} autoPlay playsInline className="video" />
-
-                {isLive && <button onClick={isParentCameraActive ? () => stopParentCamera() : startParentCamera}
-                    style={{ background: isParentCameraActive ? "#ff5b00" : "#007bff", width: "auto", marginBottom: "0.75em" }} className="button">
-                    {t(isParentCameraActive ? "parent.stopCamera" : "parent.showCamera")}
-                </button>}
-
-                <button onClick={button.click} disabled={button.disabled} style={{ background: button.color, width: "auto" }} className="button">
-                    {button.text}
-                </button>
-            </div>
+            </main>
         </div>
     );
 }
