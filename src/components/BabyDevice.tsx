@@ -1,10 +1,11 @@
-import { Ban, Camera, CameraOff, Mic, MicOff, Users, Volume2, VolumeOff } from "lucide-react";
+import { Ban, Camera, CameraOff, Radio, RefreshCw, Users, Volume2, VolumeOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { attachDataChannel, createAndStoreOfferWhilePolling, closeAllPCsAndRevokeSDP, getNewPC, sendMessage, loadAndApplyAnswerWhilePolling } from "../services/connex";
 import { audioConfigs, createTimestampedMediaStream } from "../services/media";
 import { getSettings, setSettings } from "../services/settings";
 import useRefState from "../custom-hooks/useRefState";
 import { useTranslation } from "../i18n";
+import AppHeader from "./AppHeader";
 
 function BabyDevice({ showToast }) {
     const t = useTranslation();
@@ -234,50 +235,44 @@ function BabyDevice({ showToast }) {
     useEffect(() => { return cleanUp; }, [cleanUp]);
 
     return (
-        <div className="container-y no-select" style={{ height: "95vh", justifyContent: "center", alignItems: "center" }}>
-            <div className="text-title" style={{ marginBottom: "2em" }}>{t("baby.title")}</div>
-
-            <div className="container-y" style={{ alignItems: "center", maxWidth: "90vw" }}>
-                <div className="container-x" style={{ height: "2.25em", justifyContent: "space-between" }}>
-                    <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
-                        {isLive
-                            ? <span>
-                                <Camera style={{ marginRight: "0.4em" }} size={18} />
-                                {isMuted ? <Mic size={18} /> : <MicOff size={18} />}
-                            </span>
-                            : <span>
-                                <CameraOff style={{ marginRight: "0.4em" }} size={18} />
-                                <MicOff size={18} />
-                            </span>}
-                        <div style={{ fontSize: "small" }}>{t("common.sending")}</div>
+        <div className="app-page monitor-page no-select">
+            <AppHeader back />
+            <main className="monitor-layout">
+                <section className="monitor-heading">
+                    <div>
+                        <span className={`status-badge ${isLive ? "is-live" : ""}`}><Radio size={14} /> {isLive ? t("common.live") : t("common.standby")}</span>
+                        <h1>{t("baby.title")}</h1>
                     </div>
-                    <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
-                        {(polling || activeConnections.length > 0)
-                            ? <span>
-                                <Users style={{ marginRight: "0.6em" }} size={18} />
-                                <span style={{ display: "inline-block", fontFamily: "Consolas, monospace", fontSize: "larger" }}>
-                                    {activeConnections.length}{polling && "+"}
-                                </span>
-                            </span>
-                            : <span><Ban size={18} /></span>}
-                        <div style={{ fontSize: "small" }}>{t("common.connections")}</div>
+                    <button className="icon-button" onClick={flipCamera} disabled={!isLive} aria-label={t("baby.flip")}>
+                        <RefreshCw size={20} />
+                    </button>
+                </section>
+                <section className={`video-shell baby-video-stage${isParentCameraActive ? " parent-camera-active" : ""}`}>
+                    <video ref={parentVideoRef} muted autoPlay playsInline className="parent-camera-video parent-camera-placeholder" />
+                    <video ref={videoRef} onClick={flipCamera} muted={isMuted} autoPlay playsInline className="video baby-camera-video baby-camera-placeholder" />
+                    <div className="video-scrim" />
+                    <div className="video-label"><span className={isLive ? "live-dot" : "standby-dot"} /> {t("baby.cameraPreview")}</div>
+                </section>
+                <section className="status-grid">
+                    <div className="status-card">
+                        {isLive ? <Camera size={20} /> : <CameraOff size={20} />}
+                        <span>{t("common.sending")}</span>
                     </div>
-                    <div className="container-y" style={{ alignItems: "center", margin: "auto 0.25em" }}>
-                        <span>{isMuted ? <VolumeOff size={18} /> : <Volume2 size={18} />}</span>
-                        <div style={{ fontSize: "small" }}>{t("common.receiving")}</div>
+                    <div className="status-card">
+                        {(polling || activeConnections.length > 0) ? <Users size={20} /> : <Ban size={20} />}
+                        <strong>{activeConnections.length}{polling && "+"}</strong><span>{t("common.connections")}</span>
                     </div>
-                </div>
-
-                <div className={`baby-video-stage${isParentCameraActive ? " parent-camera-active" : ""}`}>
-                    <video ref={parentVideoRef} muted autoPlay playsInline className="parent-camera-video" />
-                    <video ref={videoRef} onClick={flipCamera} muted={isMuted} autoPlay playsInline className="video baby-camera-video" />
-                </div>
-
-                <button onClick={button.click} disabled={button.disabled} style={{ background: button.color, width: "auto" }} className="button">
+                    <div className="status-card">
+                        {isMuted ? <VolumeOff size={20} /> : <Volume2 size={20} />}
+                        <span>{t("common.receiving")}</span>
+                    </div>
+                </section>
+                <button onClick={button.click} disabled={button.disabled} className={`button ${isLive ? "button-danger" : ""}`}>
+                    {button.disabled && <span className="spinner" />}
                     {button.text}
                 </button>
-            </div>
-        </div >
+            </main>
+        </div>
     );
 }
 

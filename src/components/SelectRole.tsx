@@ -1,8 +1,9 @@
-import { CircleQuestionMark, Settings, Smartphone } from "lucide-react";
+import { Baby, ChevronRight, Eye, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePWAInstaller } from "../custom-hooks/usePWAInstaller";
 import { getBrowserID } from "../services/settings";
 import { useTranslation } from "../i18n";
+import AppHeader from "./AppHeader";
 
 function SelectRole({ showToast }) {
     const navigate = useNavigate();
@@ -18,31 +19,37 @@ function SelectRole({ showToast }) {
     }
 
     return (
-        <div className="container-y no-select" style={{ width: "100%", height: "95vh" }}>
-            <div className="container-x">
-                <div style={{ margin: "0.75em" }}>
-                    <div style={{ marginTop: "0.2em" }}><strong>{t("role.browserId")}</strong></div>
-                    <div style={{ marginTop: "0.1em", fontFamily: "Consolas, monospace", fontSize: "smaller" }}>{getBrowserID()}</div>
-                </div>
-                <div className="container-x" style={{ justifyContent: "flex-end", alignItems: "center", gap: "1em", margin: "0.75em" }}>
-                    <CircleQuestionMark size={38} onClick={() => navigate('/help')} className="icon"><title>{t("role.help")}</title></CircleQuestionMark>
-                    {!isInstalled && <Smartphone size={36} onClick={showPWAInstallPrompt} className="icon"><title>{t("role.install")}</title></Smartphone>}
-                    <Settings size={40} onClick={() => navigate('/settings')} className="icon"><title>{t("role.settings")}</title></Settings>
-                </div>
-            </div>
-
-            <div className="container-y middle">
-                <div className="text-title" style={{ marginBottom: "0.5em" }}>{t("role.select")}</div>
-
-                <div className="container-y" style={{ width: "auto", gap: "3em" }}>
-                    <button onClick={() => navigate('/baby-device')} className="button">
-                        {t("role.babyPrefix")} <strong>{t("role.baby")}</strong> {t("role.babyDetail")}
+        <div className="app-page no-select">
+            <AppHeader showInstall={!isInstalled} install={showPWAInstallPrompt} />
+            <main className="role-layout">
+                <section className="hero-copy">
+                    <div className="eyebrow"><ShieldCheck size={15} /> {t("role.privateNetwork")}</div>
+                    <h1>{t("role.select")}</h1>
+                    <p>{t("role.subtitle")}</p>
+                </section>
+                <section className="role-grid">
+                    <button onClick={() => navigate('/baby-device')} className="role-card">
+                        <span className="role-icon"><Baby size={28} /></span>
+                        <span className="role-content">
+                            <strong>{t("role.baby")}</strong>
+                            <small>{t("role.babyDescription")}</small>
+                        </span>
+                        <ChevronRight className="role-arrow" size={22} />
                     </button>
-                    <button onClick={() => navigate('/parent-device')} className="button">
-                        {t("role.parentPrefix")} <strong>{t("role.parent")}</strong> {t("role.parentDetail")}
+                    <button onClick={() => navigate('/parent-device')} className="role-card">
+                        <span className="role-icon role-icon-secondary"><Eye size={28} /></span>
+                        <span className="role-content">
+                            <strong>{t("role.parent")}</strong>
+                            <small>{t("role.parentDescription")}</small>
+                        </span>
+                        <ChevronRight className="role-arrow" size={22} />
                     </button>
+                </section>
+                <div className="device-id">
+                    <span>{t("role.browserId")}</span>
+                    <code>{getBrowserID()}</code>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

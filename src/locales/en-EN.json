@@ -1,16 +1,18 @@
 {
   "app": { "title": "Baby Monitor", "update": "A new update has been applied!\nReload the app now?" },
-  "common": { "sending": "sending", "receiving": "receiving", "connections": "connections", "disconnect": "Disconnect" },
+  "common": { "sending": "Sending", "receiving": "Receiving", "connections": "Connections", "disconnect": "Disconnect", "live": "Live", "standby": "Standby", "video": "Video", "audio": "Audio" },
   "role": {
     "browserId": "Browser ID", "help": "How to Use?", "install": "Install as PWA", "settings": "User Settings",
     "select": "Select a Role for this Device", "babyPrefix": "Use as", "baby": "Baby Device", "babyDetail": "(Camera/Mic)",
-    "parentPrefix": "Use as", "parent": "Parent Device", "parentDetail": "(Live Stream)", "installUnavailable": "Not approved by the browser yet!"
+    "parentPrefix": "Use as", "parent": "Parent Device", "parentDetail": "(Live Stream)", "installUnavailable": "Not approved by the browser yet!",
+    "privateNetwork": "Private by design", "subtitle": "Choose how this device should join your secure, peer-to-peer monitor.", "babyDescription": "Share this device's camera and microphone from the nursery.", "parentDescription": "Watch and listen to the live stream from anywhere on your local network."
   },
   "settings": {
     "title": "User Settings", "frontCamera": "Start With Front Camera", "maxParents": "Max Parent Connections",
     "pollingTimeout": "Polling Timeout (minutes)", "restartPolling": "Restart Polling Automatically", "pushToTalk": "Use Push-To-Talk Feature",
     "timestamp": "Show Video Timestamp", "trustedParents": "Trusted Parent Devices", "forgetAll": "Forget All", "save": "Save Settings",
-    "restore": "Restore Defaults", "unchanged": "Settings not changed!", "saved": "Settings saved!", "restored": "Restored default settings!"
+    "restore": "Restore Defaults", "unchanged": "Settings not changed!", "saved": "Settings saved!", "restored": "Restored default settings!",
+    "preferences": "Monitor preferences", "subtitle": "Tune how devices connect and how the camera behaves.", "frontCameraHint": "Use the selfie camera when monitoring starts.", "maxParentsHint": "Limit simultaneous viewers on your private stream.", "pollingTimeoutHint": "How long to wait for a parent device.", "restartPollingHint": "Resume searching when the last parent disconnects.", "pushToTalkHint": "Hold the feed to speak through the baby device.", "timestampHint": "Overlay the local date and time on the stream.", "trustedParentsHint": "Devices accepted and remembered by this monitor."
   },
   "baby": {
     "title": "Baby Device", "start": "Start Camera", "starting": "Starting...", "stop": "Stop Camera", "stopping": "Stopping...", "flipping": "Flipping...",
@@ -20,7 +22,7 @@
     "noCamera": "No camera found on this device!", "backCameraUnavailable": "Back camera is not available!",
     "startBeforeFlip": "Start the camera before flipping!", "singleCamera": "Cannot flip with single camera!",
     "flipped": "Flipped to {{side}} Camera!", "front": "Front", "back": "Back", "disconnectAll": "Disconnect all the parent devices?",
-    "stoppedWithParents": "Camera stopped! All parents disconnected!", "stoppedWithoutParents": "Camera stopped! No parent connected!"
+    "stoppedWithParents": "Camera stopped! All parents disconnected!", "stoppedWithoutParents": "Camera stopped! No parent connected!", "flip": "Flip camera", "cameraPreview": "Nursery camera"
   },
   "parent": {
     "title": "Parent Device", "request": "Request Connection", "requesting": "Requesting...", "connecting": "Connecting...", "disconnecting": "Disconnecting...",
@@ -28,7 +30,7 @@
     "disconnected": "Disconnected from the baby device!", "offline": "Baby device went offline!", "connectFirst": "Connect to the baby device first!",
     "cameraVisible": "Parent camera is visible without audio.", "cameraFailed": "Could not start the parent camera.", "cameraStopped": "Parent camera stopped.",
     "fullscreenUnavailable": "Cannot go fullscreen!", "fullscreen": "Watch Fullscreen", "silentVideo": "silent video",
-    "showCamera": "Show Parent Camera (Silent)", "stopCamera": "Stop Parent Camera"
+    "showCamera": "Show Parent Camera (Silent)", "stopCamera": "Stop Parent Camera", "babyRoom": "Baby room"
   },
   "help": {
     "title": "Baby Monitor - Local Help", "intro": "This application is designed to run within your local network.", "quickStart": "Quick Start",

@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
+import AppHeader from "./AppHeader";
 
 export default function Help() {
   const t = useTranslation();
   const navigate = useNavigate();
   return (
-    <main className="help-page">
+    <div className="app-page">
+    <AppHeader back />
+    <main className="help-page glass-card">
       <h1>{t("help.title")}</h1>
       <p>{t("help.intro")}</p>
       <h2>{t("help.quickStart")}</h2>
@@ -20,7 +23,8 @@ export default function Help() {
         <li>{t("help.signalingBefore")} <code>/api/v1/exchange</code>.</li>
         <li>{t("help.firewall")}</li>
       </ul>
-      <button className="link-button" onClick={() => navigate("/")}>{t("help.back")}</button>
+      <button className="button button-secondary" onClick={() => navigate("/")}>{t("help.back")}</button>
     </main>
+    </div>
   );
 }
