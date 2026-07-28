@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Check commit messages
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+
+  test:
+    name: Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run tests
+        run: npm test -- --runInBand
+
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build production assets
+        run: npm run build
+
+      - name: Verify production assets
+        run: |
+          test -s dist/index.html
+          test -n "$(find dist/assets -type f -name '*.js' -print -quit)"
+          test -n "$(find dist/assets -type f -name '*.css' -print -quit)"
+
+  container:
+    name: Container smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Build container
+        run: docker build --tag baby-monitor-ci .
+
+      - name: Start container
+        run: docker run --detach --name baby-monitor-ci --publish 127.0.0.1:8080:8080 baby-monitor-ci
+
+      - name: Verify application and signaling API
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error \
+              http://127.0.0.1:8080/api/v1/version > version.json; then
+              break
+            fi
+
+            if [ "$attempt" -eq 30 ]; then
+              docker logs baby-monitor-ci
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          grep --quiet '"app_name":"baby-monitor"' version.json
+          curl --fail --silent --show-error http://127.0.0.1:8080/ > index.html
+          grep --quiet '<div id="root"></div>' index.html
+
+          curl --fail --silent --show-error \
+            --header 'Content-Type: application/json' \
+            --data '{"type":"offer","sdp":"ci-smoke-test"}' \
+            http://127.0.0.1:8080/api/v1/exchange > exchange-post.json
+          grep --quiet '"status":"offer-stored"' exchange-post.json
+
+          curl --fail --silent --show-error \
+            'http://127.0.0.1:8080/api/v1/exchange?type=offer' > exchange-get.json
+          grep --quiet '"sdp":"ci-smoke-test"' exchange-get.json
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs baby-monitor-ci || true
+
+      - name: Stop container
+        if: always()
+        run: docker rm --force baby-monitor-ci 2>/dev/null || true
