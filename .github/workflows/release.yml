@@ -1,0 +1,71 @@
+name: Bump & Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Bump version and create release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          # A PAT lets the generated tag trigger the container workflow.
+          persist-credentials: true # zizmor: ignore[artipacked]
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+
+      - name: Configure git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Bump version
+        id: bump
+        run: |
+          if uvx --from commitizen cz bump \
+            --yes \
+            --changelog \
+            --changelog-to-stdout \
+            --git-output-to-stderr > release-notes.md; then
+            echo "bumped=true" >> "$GITHUB_OUTPUT"
+            echo "version=$(uvx --from commitizen cz version --project)" >> "$GITHUB_OUTPUT"
+          else
+            rc=$?
+            if [ "$rc" -eq 21 ]; then
+              echo "No version bump needed"
+              echo "bumped=false" >> "$GITHUB_OUTPUT"
+            else
+              exit "$rc"
+            fi
+          fi
+
+      - name: Push bump commit and tag
+        if: steps.bump.outputs.bumped == 'true'
+        run: |
+          git push
+          git push --tags
+
+      - name: Create GitHub release
+        if: steps.bump.outputs.bumped == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --notes-file release-notes.md
