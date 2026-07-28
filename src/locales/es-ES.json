@@ -19,6 +19,8 @@
     "pollingStopped": "¡Búsqueda detenida!", "waiting": "¡Esperando conexiones parentales!",
     "unknownParent": "¡El dispositivo parental desconocido {{parentId}} quiere conectarse!\n¿Aceptar la conexión y marcarlo como dispositivo de confianza?",
     "maxParents": "¡Se alcanzó el límite de dispositivos parentales!", "parentConnected": "¡Dispositivo parental conectado!", "parentDisconnected": "¡Dispositivo parental desconectado!",
+    "parentConnectionInterrupted": "Conexión parental interrumpida. Esperando a que se recupere...", "parentConnectionRecovered": "¡Conexión parental recuperada!",
+    "parentRecoveryTimedOut": "La conexión parental no se recuperó a tiempo.", "parentConnectionFailed": "La conexión parental ha fallado.",
     "noCamera": "¡No se encontró ninguna cámara en este dispositivo!", "backCameraUnavailable": "¡La cámara trasera no está disponible!",
     "startBeforeFlip": "¡Inicia la cámara antes de cambiarla!", "singleCamera": "¡No se puede cambiar porque sólo hay una cámara!",
     "flipped": "¡Cambiada a la cámara {{side}}!", "front": "frontal", "back": "trasera", "disconnectAll": "¿Desconectar todos los dispositivos parentales?",
@@ -28,6 +30,8 @@
     "title": "Dispositivo parental", "request": "Solicitar conexión", "requesting": "Solicitando...", "connecting": "Conectando...", "disconnecting": "Desconectando...",
     "requestFailed": "¡La solicitud de conexión ha fallado!", "noBaby": "¡No hay ningún dispositivo del bebé en línea!", "connected": "¡Conectado al dispositivo del bebé!",
     "disconnected": "¡Desconectado del dispositivo del bebé!", "offline": "¡El dispositivo del bebé se desconectó!", "connectFirst": "¡Conéctate primero al dispositivo del bebé!",
+    "connectionInterrupted": "Conexión interrumpida. Intentando recuperarla...", "connectionRecovered": "¡Conexión recuperada!",
+    "recoveryTimedOut": "La conexión no se recuperó a tiempo.", "connectionFailed": "La conexión WebRTC ha fallado.", "connectionClosed": "La conexión WebRTC se ha cerrado.",
     "cameraVisible": "La cámara parental está visible sin audio.", "cameraFailed": "No se pudo iniciar la cámara parental.", "cameraStopped": "Cámara parental detenida.",
     "fullscreenUnavailable": "¡No se puede abrir a pantalla completa!", "fullscreen": "Ver a pantalla completa", "silentVideo": "vídeo sin audio",
     "showCamera": "Mostrar cámara parental (sin audio)", "stopCamera": "Detener cámara parental", "babyRoom": "Habitación del bebé"

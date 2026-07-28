@@ -19,6 +19,8 @@
     "pollingStopped": "Polling stopped!", "waiting": "Waiting for parent connections!",
     "unknownParent": "Unknown parent {{parentId}} wants to connect!\nAccept connection and mark as trusted parent?",
     "maxParents": "Max parent limit reached!", "parentConnected": "Parent device got connected!", "parentDisconnected": "Parent device got disconnected!",
+    "parentConnectionInterrupted": "Parent connection interrupted. Waiting for it to recover...", "parentConnectionRecovered": "Parent connection recovered!",
+    "parentRecoveryTimedOut": "The parent connection did not recover in time.", "parentConnectionFailed": "The parent connection failed.",
     "noCamera": "No camera found on this device!", "backCameraUnavailable": "Back camera is not available!",
     "startBeforeFlip": "Start the camera before flipping!", "singleCamera": "Cannot flip with single camera!",
     "flipped": "Flipped to {{side}} Camera!", "front": "Front", "back": "Back", "disconnectAll": "Disconnect all the parent devices?",
@@ -28,6 +30,8 @@
     "title": "Parent Device", "request": "Request Connection", "requesting": "Requesting...", "connecting": "Connecting...", "disconnecting": "Disconnecting...",
     "requestFailed": "Connection request failed!", "noBaby": "No baby device online!", "connected": "Connected to the baby device!",
     "disconnected": "Disconnected from the baby device!", "offline": "Baby device went offline!", "connectFirst": "Connect to the baby device first!",
+    "connectionInterrupted": "Connection interrupted. Trying to recover...", "connectionRecovered": "Connection recovered!",
+    "recoveryTimedOut": "The connection did not recover in time.", "connectionFailed": "The WebRTC connection failed.", "connectionClosed": "The WebRTC connection closed.",
     "cameraVisible": "Parent camera is visible without audio.", "cameraFailed": "Could not start the parent camera.", "cameraStopped": "Parent camera stopped.",
     "fullscreenUnavailable": "Cannot go fullscreen!", "fullscreen": "Watch Fullscreen", "silentVideo": "silent video",
     "showCamera": "Show Parent Camera (Silent)", "stopCamera": "Stop Parent Camera", "babyRoom": "Baby room"

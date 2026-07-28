@@ -1,10 +1,12 @@
 import {
   attachDataChannel,
+  closePeerConnection,
   closeAllPCsAndRevokeSDP,
   createAndStoreOfferWhilePolling,
   getNewPC,
   loadAndApplyAnswerWhilePolling,
   loadSDP,
+  PEER_DISCONNECT_REASONS,
   sendMessage,
   storeSDP,
   waitForIceGatheringCompletion,
@@ -47,8 +49,121 @@ describe("signalling service", () => {
     pc.ontrack("event");
     expect(pc.addTrack).toHaveBeenCalledWith(track, expect.any(Object));
     expect(onConnect).toHaveBeenCalledWith(pc);
-    expect(onDisconnect).toHaveBeenCalledWith(pc);
+    expect(onDisconnect).toHaveBeenCalledWith(
+      pc,
+      PEER_DISCONNECT_REASONS.FAILED,
+    );
     expect(onTrack).toHaveBeenCalledWith("event", pc);
+  });
+
+  test("keeps a transiently disconnected peer alive when it recovers", () => {
+    jest.useFakeTimers();
+    const pc = { addTrack: jest.fn() };
+    const onConnect = jest.fn();
+    const onDisconnect = jest.fn();
+    const onConnectionInterrupted = jest.fn();
+    const onConnectionRecovered = jest.fn();
+    global.RTCPeerConnection = jest.fn(() => pc);
+
+    getNewPC({
+      onConnect,
+      onDisconnect,
+      onConnectionInterrupted,
+      onConnectionRecovered,
+      disconnectedGracePeriodMs: 1000,
+    });
+    pc.connectionState = "connected";
+    pc.onconnectionstatechange();
+    pc.connectionState = "disconnected";
+    pc.onconnectionstatechange();
+
+    expect(onConnectionInterrupted).toHaveBeenCalledWith(pc);
+    expect(onDisconnect).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(500);
+    pc.connectionState = "connected";
+    pc.onconnectionstatechange();
+    jest.advanceTimersByTime(1000);
+
+    expect(onConnectionRecovered).toHaveBeenCalledWith(pc);
+    expect(onConnect).toHaveBeenCalledTimes(1);
+    expect(onDisconnect).not.toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
+  test("still announces the first connection after an initial interruption", () => {
+    jest.useFakeTimers();
+    const pc = { addTrack: jest.fn() };
+    const onConnect = jest.fn();
+    const onDisconnect = jest.fn();
+    const onConnectionRecovered = jest.fn();
+    global.RTCPeerConnection = jest.fn(() => pc);
+    getNewPC({
+      onConnect,
+      onDisconnect,
+      onConnectionRecovered,
+      disconnectedGracePeriodMs: 1000,
+    });
+
+    pc.connectionState = "disconnected";
+    pc.onconnectionstatechange();
+    pc.connectionState = "connected";
+    pc.onconnectionstatechange();
+
+    expect(onConnect).toHaveBeenCalledWith(pc);
+    expect(onConnectionRecovered).not.toHaveBeenCalled();
+    expect(onDisconnect).not.toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
+  test("reports a disconnected timeout separately from failed and closed", () => {
+    jest.useFakeTimers();
+    const onDisconnect = jest.fn();
+    const timedOutPc = { addTrack: jest.fn() };
+    global.RTCPeerConnection = jest.fn(() => timedOutPc);
+    getNewPC({
+      onConnect: jest.fn(),
+      onDisconnect,
+      disconnectedGracePeriodMs: 1000,
+    });
+
+    timedOutPc.connectionState = "disconnected";
+    timedOutPc.onconnectionstatechange();
+    jest.advanceTimersByTime(1000);
+    expect(onDisconnect).toHaveBeenLastCalledWith(
+      timedOutPc,
+      PEER_DISCONNECT_REASONS.TIMEOUT,
+    );
+
+    const closedPc = { addTrack: jest.fn() };
+    global.RTCPeerConnection = jest.fn(() => closedPc);
+    getNewPC({ onConnect: jest.fn(), onDisconnect });
+    closedPc.connectionState = "closed";
+    closedPc.onconnectionstatechange();
+    expect(onDisconnect).toHaveBeenLastCalledWith(
+      closedPc,
+      PEER_DISCONNECT_REASONS.CLOSED,
+    );
+    jest.useRealTimers();
+  });
+
+  test("does not report an intentional close as a connection failure", () => {
+    const onDisconnect = jest.fn();
+    const pc = {
+      addTrack: jest.fn(),
+      close: jest.fn(function close() {
+        pc.connectionState = "closed";
+        pc.onconnectionstatechange();
+      }),
+      connectionState: "connected",
+    };
+    global.RTCPeerConnection = jest.fn(() => pc);
+    getNewPC({ onConnect: jest.fn(), onDisconnect });
+
+    closePeerConnection(pc);
+
+    expect(pc.close).toHaveBeenCalled();
+    expect(onDisconnect).not.toHaveBeenCalled();
   });
 
   test("attaches outgoing and incoming data channels", () => {

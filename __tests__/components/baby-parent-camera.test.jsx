@@ -9,9 +9,15 @@ import {
 jest.mock("../../src/services/connex", () => ({
   attachDataChannel: jest.fn(),
   closeAllPCsAndRevokeSDP: jest.fn().mockResolvedValue(undefined),
+  closePeerConnection: jest.fn((pc) => pc?.close()),
   createAndStoreOfferWhilePolling: jest.fn().mockResolvedValue(undefined),
   getNewPC: jest.fn(),
   loadAndApplyAnswerWhilePolling: jest.fn(),
+  PEER_DISCONNECT_REASONS: {
+    FAILED: "connection-failed",
+    REMOTE_REQUEST: "remote-request",
+    TIMEOUT: "disconnected-timeout",
+  },
   sendMessage: jest.fn(),
 }));
 

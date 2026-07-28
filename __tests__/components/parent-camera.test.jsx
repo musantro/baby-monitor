@@ -10,8 +10,16 @@ import { createPlaceholderVideoStream } from "../../src/services/media";
 
 jest.mock("../../src/services/connex", () => ({
   attachDataChannel: jest.fn(),
+  closePeerConnection: jest.fn((pc) => pc?.close()),
   getNewPC: jest.fn(),
   loadSDP: jest.fn(),
+  PEER_DISCONNECT_REASONS: {
+    CLOSED: "connection-closed",
+    FAILED: "connection-failed",
+    LOCAL_REQUEST: "local-request",
+    REMOTE_REQUEST: "remote-request",
+    TIMEOUT: "disconnected-timeout",
+  },
   sendMessage: jest.fn(),
   storeSDP: jest.fn(),
   waitForIceGatheringCompletion: jest.fn().mockResolvedValue("complete"),

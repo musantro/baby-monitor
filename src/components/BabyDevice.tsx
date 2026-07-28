@@ -1,6 +1,6 @@
 import { Ban, Camera, CameraOff, Radio, RefreshCw, Users, Volume2, VolumeOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { attachDataChannel, createAndStoreOfferWhilePolling, closeAllPCsAndRevokeSDP, getNewPC, sendMessage, loadAndApplyAnswerWhilePolling } from "../services/connex";
+import { attachDataChannel, createAndStoreOfferWhilePolling, closeAllPCsAndRevokeSDP, closePeerConnection, getNewPC, sendMessage, loadAndApplyAnswerWhilePolling, PEER_DISCONNECT_REASONS } from "../services/connex";
 import { audioConfigs, createTimestampedMediaStream } from "../services/media";
 import { getSettings, setSettings } from "../services/settings";
 import useRefState from "../custom-hooks/useRefState";
@@ -54,7 +54,14 @@ function BabyDevice({ showToast }) {
         }, settingsRef.current.pollingTimeout * 60 * 1000);
         showToast(t("baby.waiting"));
         while (getPolling()) {
-            pcRef.current = getNewPC({ onConnect, onDisconnect, onTrack, stream: localStreamRef.current });
+            pcRef.current = getNewPC({
+                onConnect,
+                onDisconnect,
+                onConnectionInterrupted,
+                onConnectionRecovered,
+                onTrack,
+                stream: localStreamRef.current
+            });
             attachDataChannel(pcRef.current, pcRef.current.createDataChannel("SIGNAL"), onMessage);
             await createAndStoreOfferWhilePolling(pcRef.current, getPolling);
             await loadAndApplyAnswerWhilePolling(pcRef.current, getPolling, isTrustedParent);
@@ -84,12 +91,25 @@ function BabyDevice({ showToast }) {
         }
     }
 
-    function onDisconnect(pc) {
+    function onConnectionInterrupted() {
+        showToast(t("baby.parentConnectionInterrupted"));
+    }
+
+    function onConnectionRecovered() {
+        showToast(t("baby.parentConnectionRecovered"));
+    }
+
+    function onDisconnect(pc, reason) {
         const acs = getActiveConnections();
         const exists = acs.find(ac => ac.parentID === pc.parentID);
         if (exists) {
             setActiveConnections(acs.filter(ac => ac.parentID !== pc.parentID));
-            showToast(t("baby.parentDisconnected"));
+            const messageKey = reason === PEER_DISCONNECT_REASONS.TIMEOUT
+                ? "baby.parentRecoveryTimedOut"
+                : reason === PEER_DISCONNECT_REASONS.FAILED
+                    ? "baby.parentConnectionFailed"
+                    : "baby.parentDisconnected";
+            showToast(t(messageKey));
         }
         if (settingsRef.current.restartPolling && !getPolling() && getIsLive() && getActiveConnections().length === 0) beginPolling();
         if (activeParentCameraRef.current === pc) {
@@ -97,7 +117,7 @@ function BabyDevice({ showToast }) {
             setIsParentCameraActive(false);
             if (parentVideoRef.current) parentVideoRef.current.srcObject = null;
         }
-        pc?.close();
+        closePeerConnection(pc);
     }
 
     function onTrack(event, sender) {
@@ -120,7 +140,7 @@ function BabyDevice({ showToast }) {
             return;
         }
         if (message === "DISCONNECT") {
-            onDisconnect(sender);
+            onDisconnect(sender, PEER_DISCONNECT_REASONS.REMOTE_REQUEST);
             return;
         }
         if (message === "PARENT_CAMERA_START") {
