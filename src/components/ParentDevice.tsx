@@ -1,6 +1,6 @@
 import { Camera, CameraOff, Fullscreen, Radio, Video, VideoOff, Volume2, VolumeOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { attachDataChannel, getNewPC, loadSDP, sendMessage, storeSDP, waitForIceGatheringCompletion } from "../services/connex";
+import { attachDataChannel, closePeerConnection, getNewPC, loadSDP, PEER_DISCONNECT_REASONS, sendMessage, storeSDP, waitForIceGatheringCompletion } from "../services/connex";
 import { createPlaceholderVideoStream } from "../services/media";
 import { getBrowserID } from "../services/settings";
 import { useTranslation } from "../i18n";
@@ -26,7 +26,14 @@ function ParentDevice({ showToast }) {
     function setupPeerConnectionRef() {
         if (pcRef.current?.connectionState === "connected") return;
         placeholderStreamRef.current = createPlaceholderVideoStream();
-        pcRef.current = getNewPC({ onConnect, onDisconnect, onTrack, stream: placeholderStreamRef.current });
+        pcRef.current = getNewPC({
+            onConnect,
+            onDisconnect: onPeerDisconnect,
+            onConnectionInterrupted,
+            onConnectionRecovered,
+            onTrack,
+            stream: placeholderStreamRef.current
+        });
         attachDataChannel(pcRef.current, null, onMessage);
     }
 
@@ -42,23 +49,46 @@ function ParentDevice({ showToast }) {
                 sdp: pcRef.current.localDescription
             });
             if (response?.status === "answer-stored") setButton({ text: t("parent.connecting"), disabled: true });
-            else onDisconnect(t("parent.requestFailed"));
-        } else onDisconnect(t("parent.noBaby"));
+            else disconnect(PEER_DISCONNECT_REASONS.LOCAL_REQUEST, t("parent.requestFailed"));
+        } else disconnect(PEER_DISCONNECT_REASONS.LOCAL_REQUEST, t("parent.noBaby"));
     }
 
     function onConnect() {
         setIsLive(true);
-        setButton({ text: t("common.disconnect"), color: "#ff5b00", disabled: false, click: onDisconnect });
+        setButton({ text: t("common.disconnect"), color: "#ff5b00", disabled: false, click: requestDisconnection });
         showToast(t("parent.connected"));
     }
 
-    function onDisconnect(toastMsg) {
-        if (typeof toastMsg !== "string") toastMsg = t("parent.disconnected");
+    function onConnectionInterrupted() {
+        showToast(t("parent.connectionInterrupted"));
+    }
+
+    function onConnectionRecovered() {
+        showToast(t("parent.connectionRecovered"));
+    }
+
+    function onPeerDisconnect(_pc, reason) {
+        disconnect(reason);
+    }
+
+    function requestDisconnection() {
+        disconnect(PEER_DISCONNECT_REASONS.LOCAL_REQUEST);
+    }
+
+    function getDisconnectMessage(reason) {
+        if (reason === PEER_DISCONNECT_REASONS.TIMEOUT) return t("parent.recoveryTimedOut");
+        if (reason === PEER_DISCONNECT_REASONS.FAILED) return t("parent.connectionFailed");
+        if (reason === PEER_DISCONNECT_REASONS.CLOSED) return t("parent.connectionClosed");
+        if (reason === PEER_DISCONNECT_REASONS.REMOTE_REQUEST) return t("parent.offline");
+        return t("parent.disconnected");
+    }
+
+    function disconnect(reason, toastMsg = getDisconnectMessage(reason)) {
         setButton({ ...button, text: t("parent.disconnecting"), color: "#ff5b00", disabled: true });
         if (pcRef.current) {
             stopParentCamera(false);
             sendMessage("DISCONNECT", pcRef.current);
-            pcRef.current.close();
+            closePeerConnection(pcRef.current);
         }
         pcRef.current = null;
         videoRef.current.srcObject = null;
@@ -73,7 +103,7 @@ function ParentDevice({ showToast }) {
 
     function onMessage(message) {
         if (message === "DISCONNECT") {
-            onDisconnect(t("parent.offline"));
+            disconnect(PEER_DISCONNECT_REASONS.REMOTE_REQUEST);
             return;
         }
         console.warn("Unknown Signal: " + message);
@@ -127,7 +157,7 @@ function ParentDevice({ showToast }) {
     const cleanUp = useCallback(() => {
         if (pcRef.current) {
             sendMessage("DISCONNECT", pcRef.current);
-            pcRef.current.close();
+            closePeerConnection(pcRef.current);
         }
         if (videoRef.current?.srcObject) {
             videoRef.current.srcObject.getTracks().forEach(track => track.stop());
