@@ -1,0 +1,16 @@
+## v1.3.0 (2026-07-31)
+
+### Feat
+
+- overlay monitor battery on video
+
+## v1.2.6 (2026-07-28)
+
+### Feat
+
+- **video**: add configurable timestamp overlay
+- use local endpoints
+
+### Refactor
+
+- **frontend**: migrate source to TypeScript
