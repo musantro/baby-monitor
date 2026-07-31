@@ -11,6 +11,50 @@ function formatTimestamp(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
+type BatteryManager = EventTarget & {
+  level: number;
+};
+
+type NavigatorWithBattery = Navigator & {
+  getBattery?: () => Promise<BatteryManager>;
+};
+
+function drawBatteryStatus(
+  context: CanvasRenderingContext2D,
+  batteryLevel: number,
+  canvasHeight: number,
+  fontSize: number,
+  padding: number,
+) {
+  const batteryText = `${Math.round(batteryLevel * 100)}%`;
+  const iconWidth = fontSize * 1.15;
+  const iconHeight = fontSize * 0.62;
+  const iconGap = fontSize * 0.35;
+  const textWidth = context.measureText(batteryText).width;
+  const contentWidth = iconWidth + iconGap + textWidth;
+  const x = padding;
+  const y = canvasHeight - padding;
+
+  context.fillStyle = "rgba(0, 0, 0, 0.58)";
+  context.fillRect(x - padding, y - fontSize - padding, contentWidth + padding * 2, fontSize + padding * 1.5);
+
+  const iconX = x;
+  const iconY = y - (fontSize + iconHeight) / 2;
+  context.strokeStyle = "white";
+  context.lineWidth = Math.max(2, fontSize * 0.1);
+  context.strokeRect(iconX, iconY, iconWidth, iconHeight);
+  context.fillStyle = "white";
+  context.fillRect(iconX + iconWidth, iconY + iconHeight * 0.28, fontSize * 0.15, iconHeight * 0.44);
+  context.fillRect(
+    iconX + fontSize * 0.12,
+    iconY + fontSize * 0.12,
+    Math.max(0, (iconWidth - fontSize * 0.24) * batteryLevel),
+    iconHeight - fontSize * 0.24,
+  );
+  context.textAlign = "left";
+  context.fillText(batteryText, iconX + iconWidth + iconGap, y);
+}
+
 /**
  * Draws a timestamp directly into the outgoing video frames so every receiver
  * sees the same overlay, independently of its own display size.
@@ -32,6 +76,19 @@ export async function createTimestampedMediaStream(sourceStream: MediaStream) {
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Could not create video canvas context");
   let animationFrame: number;
+  let batteryLevel: number | null = null;
+  let batteryManager: BatteryManager | null = null;
+  const updateBatteryLevel = () => {
+    batteryLevel = batteryManager?.level ?? null;
+  };
+
+  try {
+    batteryManager = await (navigator as NavigatorWithBattery).getBattery?.() ?? null;
+    updateBatteryLevel();
+    batteryManager?.addEventListener("levelchange", updateBatteryLevel);
+  } catch (error) {
+    console.warn("Battery status is unavailable", error);
+  }
 
   function drawFrame() {
     context.drawImage(sourceVideo, 0, 0, canvas.width, canvas.height);
@@ -53,6 +110,7 @@ export async function createTimestampedMediaStream(sourceStream: MediaStream) {
     context.fillStyle = "white";
     context.textAlign = "right";
     context.fillText(timestamp, x, y);
+    if (batteryLevel !== null) drawBatteryStatus(context, batteryLevel, canvas.height, fontSize, padding);
     animationFrame = requestAnimationFrame(drawFrame);
   }
   drawFrame();
@@ -64,6 +122,7 @@ export async function createTimestampedMediaStream(sourceStream: MediaStream) {
     stream: timestampedStream,
     stop: () => {
       cancelAnimationFrame(animationFrame);
+      batteryManager?.removeEventListener("levelchange", updateBatteryLevel);
       sourceVideo.pause();
       sourceVideo.srcObject = null;
       timestampedStream.getVideoTracks().forEach((track) => track.stop());
