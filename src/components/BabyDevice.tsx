@@ -271,7 +271,7 @@ function BabyDevice({ showToast }) {
     useEffect(() => { return cleanUp; }, [cleanUp]);
 
     return (
-        <div className="app-page monitor-page no-select">
+        <div className="app-page monitor-page baby-monitor-page no-select">
             <AppHeader back />
             <main className="monitor-layout">
                 <section className="monitor-heading">
