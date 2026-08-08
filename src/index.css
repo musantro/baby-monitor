@@ -139,6 +139,7 @@ h1 { margin: 12px 0; font-size: clamp(32px, 5vw, 52px); line-height: 1.06; lette
   box-shadow: 0 24px 80px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.05);
 }
 .video { display: block; width: 100%; height: 100%; margin: 0; border: 0; object-fit: cover; }
+.parent-feed .video { object-fit: contain; }
 .baby-camera-placeholder, .parent-feed-placeholder, .parent-camera-placeholder {
   background:
     radial-gradient(circle at 52% 58%, rgba(206, 189, 255, 0.13), transparent 18%),

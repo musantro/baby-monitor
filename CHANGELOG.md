@@ -1,3 +1,9 @@
+## v1.4.1 (2026-08-08)
+
+### Fix
+
+- preserve full parent video frame
+
 ## v1.4.0 (2026-08-08)
 
 ### Feat
