@@ -16,7 +16,7 @@
   },
   "baby": {
     "title": "Baby Device", "start": "Start Camera", "starting": "Starting...", "stop": "Stop Camera", "stopping": "Stopping...", "flipping": "Flipping...",
-    "pollingStopped": "Polling stopped!", "waiting": "Waiting for parent connections!",
+    "pollingStopped": "Polling stopped!", "waiting": "Waiting for parent connections!", "approvals": "Approvals", "approvalsWithCount": "Pending approvals: {{count}}", "pendingApprovals": "Pending approvals", "noPendingApprovals": "There are no pending requests.", "parentRequest": "Parent device", "accept": "Accept", "reject": "Reject", "closeApprovals": "Close approvals", "security": "Connection security",
     "unknownParent": "Unknown parent {{parentId}} wants to connect!\nAccept connection and mark as trusted parent?",
     "maxParents": "Max parent limit reached!", "parentConnected": "Parent device got connected!", "parentDisconnected": "Parent device got disconnected!",
     "parentConnectionInterrupted": "Parent connection interrupted. Waiting for it to recover...", "parentConnectionRecovered": "Parent connection recovered!",

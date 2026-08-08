@@ -1,4 +1,4 @@
-import { Ban, Camera, CameraOff, Radio, RefreshCw, Users, Volume2, VolumeOff } from "lucide-react";
+import { Ban, Camera, CameraOff, Check, Radio, RefreshCw, ShieldCheck, Users, Volume2, VolumeOff, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { attachDataChannel, createAndStoreOfferWhilePolling, closeAllPCsAndRevokeSDP, closePeerConnection, getNewPC, sendMessage, loadAndApplyAnswerWhilePolling, PEER_DISCONNECT_REASONS } from "../services/connex";
 import { audioConfigs, createTimestampedMediaStream } from "../services/media";
@@ -18,6 +18,7 @@ function BabyDevice({ showToast }) {
     const cameraStreamRef = useRef(null);
     const timestampRendererRef = useRef(null);
     const activeParentCameraRef = useRef(null);
+    const approvalResolversRef = useRef(new Map());
 
     const [isLive, setIsLive, getIsLive] = useRefState(false);
     const [polling, setPolling, getPolling] = useRefState(false);
@@ -26,6 +27,8 @@ function BabyDevice({ showToast }) {
     const [button, setButton] = useState({ text: t("baby.start"), color: "#007bff", disabled: false, click: startCamera });
     const [isMuted, setIsMuted] = useState(true);
     const [isParentCameraActive, setIsParentCameraActive] = useState(false);
+    const [pendingApprovals, setPendingApprovals] = useState([]);
+    const [approvalsOpen, setApprovalsOpen] = useState(false);
 
     useEffect(() => {
         async function findCameraDevices() {
@@ -70,11 +73,22 @@ function BabyDevice({ showToast }) {
 
     function isTrustedParent(parentID) {
         if (settingsRef.current.trustedParents.includes(parentID)) return true;
-        const accepted = confirm(t("baby.unknownParent", { parentId: parentID }));
-        if (!accepted) return false;
-        settingsRef.current.trustedParents.push(parentID);
-        setSettings(settingsRef.current);
-        return true;
+        return new Promise(resolve => {
+            approvalResolversRef.current.set(parentID, resolve);
+            setPendingApprovals(current => current.includes(parentID) ? current : [...current, parentID]);
+        });
+    }
+
+    function resolveApproval(parentID, accepted) {
+        const resolve = approvalResolversRef.current.get(parentID);
+        if (!resolve) return;
+        approvalResolversRef.current.delete(parentID);
+        setPendingApprovals(current => current.filter(id => id !== parentID));
+        if (accepted && !settingsRef.current.trustedParents.includes(parentID)) {
+            settingsRef.current.trustedParents.push(parentID);
+            setSettings(settingsRef.current);
+        }
+        resolve(accepted);
     }
 
     function onConnect(pc) {
@@ -250,6 +264,8 @@ function BabyDevice({ showToast }) {
         activeParentCameraRef.current = null;
         setIsParentCameraActive(false);
         stopMediaStreams();
+        approvalResolversRef.current.forEach(resolve => resolve(false));
+        approvalResolversRef.current.clear();
     }, [setIsLive, setPolling, setActiveConnections, getActiveConnections]);
 
     useEffect(() => { return cleanUp; }, [cleanUp]);
@@ -263,9 +279,15 @@ function BabyDevice({ showToast }) {
                         <span className={`status-badge ${isLive ? "is-live" : ""}`}><Radio size={14} /> {isLive ? t("common.live") : t("common.standby")}</span>
                         <h1>{t("baby.title")}</h1>
                     </div>
-                    <button className="icon-button" onClick={flipCamera} disabled={!isLive} aria-label={t("baby.flip")}>
-                        <RefreshCw size={20} />
-                    </button>
+                    <div className="monitor-heading-actions">
+                        <button className="approval-button" onClick={() => setApprovalsOpen(true)} aria-label={t("baby.approvalsWithCount", { count: pendingApprovals.length })}>
+                            <ShieldCheck size={20} /><span>{t("baby.approvals")}</span>
+                            {pendingApprovals.length > 0 && <span className="notification-badge" aria-hidden="true">{pendingApprovals.length}</span>}
+                        </button>
+                        <button className="icon-button" onClick={flipCamera} disabled={!isLive} aria-label={t("baby.flip")}>
+                            <RefreshCw size={20} />
+                        </button>
+                    </div>
                 </section>
                 <section className={`video-shell baby-video-stage${isParentCameraActive ? " parent-camera-active" : ""}`}>
                     <video ref={parentVideoRef} muted autoPlay playsInline className="parent-camera-video parent-camera-placeholder" />
@@ -292,6 +314,22 @@ function BabyDevice({ showToast }) {
                     {button.text}
                 </button>
             </main>
+            {approvalsOpen && <div className="modal-backdrop" onMouseDown={() => setApprovalsOpen(false)}>
+                <section className="approval-modal" role="dialog" aria-modal="true" aria-labelledby="approvals-title" onMouseDown={event => event.stopPropagation()}>
+                    <header className="modal-header">
+                        <div><span className="eyebrow">{t("baby.security")}</span><h2 id="approvals-title">{t("baby.pendingApprovals")}</h2></div>
+                        <button className="icon-button" onClick={() => setApprovalsOpen(false)} aria-label={t("baby.closeApprovals")}><X size={20} /></button>
+                    </header>
+                    {pendingApprovals.length === 0 ? <p className="approval-empty">{t("baby.noPendingApprovals")}</p> :
+                        <ul className="approval-list">{pendingApprovals.map(parentID => <li key={parentID}>
+                            <div><strong>{t("baby.parentRequest")}</strong><code>{parentID}</code></div>
+                            <div className="approval-actions">
+                                <button className="approval-reject" onClick={() => resolveApproval(parentID, false)}><X size={17} />{t("baby.reject")}</button>
+                                <button className="approval-accept" onClick={() => resolveApproval(parentID, true)}><Check size={17} />{t("baby.accept")}</button>
+                            </div>
+                        </li>)}</ul>}
+                </section>
+            </div>}
         </div>
     );
 }

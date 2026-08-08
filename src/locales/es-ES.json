@@ -16,7 +16,7 @@
   },
   "baby": {
     "title": "Dispositivo del bebé", "start": "Iniciar cámara", "starting": "Iniciando...", "stop": "Detener cámara", "stopping": "Deteniendo...", "flipping": "Cambiando cámara...",
-    "pollingStopped": "¡Búsqueda detenida!", "waiting": "¡Esperando conexiones parentales!",
+    "pollingStopped": "¡Búsqueda detenida!", "waiting": "¡Esperando conexiones parentales!", "approvals": "Aprobaciones", "approvalsWithCount": "Aprobaciones pendientes: {{count}}", "pendingApprovals": "Aprobaciones pendientes", "noPendingApprovals": "No hay solicitudes pendientes.", "parentRequest": "Dispositivo parental", "accept": "Aceptar", "reject": "Rechazar", "closeApprovals": "Cerrar aprobaciones", "security": "Seguridad de conexión",
     "unknownParent": "¡El dispositivo parental desconocido {{parentId}} quiere conectarse!\n¿Aceptar la conexión y marcarlo como dispositivo de confianza?",
     "maxParents": "¡Se alcanzó el límite de dispositivos parentales!", "parentConnected": "¡Dispositivo parental conectado!", "parentDisconnected": "¡Dispositivo parental desconectado!",
     "parentConnectionInterrupted": "Conexión parental interrumpida. Esperando a que se recupere...", "parentConnectionRecovered": "¡Conexión parental recuperada!",

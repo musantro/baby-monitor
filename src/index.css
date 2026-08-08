@@ -96,6 +96,9 @@ h1 { margin: 12px 0; font-size: clamp(32px, 5vw, 52px); line-height: 1.06; lette
 .monitor-layout { padding: 28px 0 max(32px, env(safe-area-inset-bottom, 0px)); display: grid; gap: 18px; }
 .monitor-layout > * { min-width: 0; }
 .monitor-heading { display: flex; justify-content: space-between; align-items: end; }
+.monitor-heading-actions { display: flex; align-items: center; gap: 10px; }
+.approval-button { position: relative; min-height: 42px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--outline); border-radius: 999px; background: rgba(34,42,61,.66); cursor: pointer; }
+.notification-badge { position: absolute; top: -7px; right: -7px; min-width: 21px; height: 21px; padding: 0 5px; display: grid; place-items: center; border: 2px solid var(--surface); border-radius: 999px; background: var(--danger); color: #4a0b08; font-size: 11px; font-weight: 700; }
 .monitor-heading h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 40px); }
 .status-badge { padding: 7px 10px; color: var(--muted); background: rgba(34,42,61,.7); border: 1px solid var(--outline); border-radius: 99px; }
 .status-badge.is-live { color: var(--primary); border-color: rgba(87,241,219,.28); }
@@ -181,6 +184,19 @@ h1 { margin: 12px 0; font-size: clamp(32px, 5vw, 52px); line-height: 1.06; lette
   background: rgba(34,42,61,.94); backdrop-filter: blur(16px); color: var(--text); opacity: 0;
   box-shadow: 0 18px 50px rgba(0,0,0,.32); z-index: 9999; animation: slideUpFade .3s ease-out forwards;
 }
+.modal-backdrop { position: fixed; inset: 0; z-index: 10000; padding: 20px; display: grid; place-items: center; background: rgba(3,8,20,.76); backdrop-filter: blur(8px); }
+.approval-modal { width: min(100%, 600px); max-height: min(80vh, 680px); overflow: auto; padding: 24px; border: 1px solid var(--outline); border-radius: 24px; background: var(--surface-low); box-shadow: 0 24px 80px rgba(0,0,0,.5); }
+.modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.modal-header h2 { margin: 6px 0 20px; font-size: 26px; }
+.approval-empty { margin: 8px 0 0; padding: 28px; border: 1px dashed var(--outline); border-radius: 16px; color: var(--muted); text-align: center; }
+.approval-list { margin: 0; padding: 0; display: grid; gap: 12px; list-style: none; }
+.approval-list li { padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid var(--outline); border-radius: 16px; background: var(--surface-high); }
+.approval-list li > div:first-child { min-width: 0; display: grid; gap: 6px; }
+.approval-list code { overflow-wrap: anywhere; color: var(--muted); }
+.approval-actions { display: flex; gap: 8px; }
+.approval-actions button { min-height: 38px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: 99px; cursor: pointer; font-weight: 600; }
+.approval-reject { border: 1px solid rgba(255,180,171,.3); background: transparent; color: var(--danger); }
+.approval-accept { border: 0; background: var(--primary); color: var(--primary-dark); }
 .no-select { user-select: none; -webkit-user-select: none; }
 @keyframes slideUpFade { to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -204,4 +220,9 @@ h1 { margin: 12px 0; font-size: clamp(32px, 5vw, 52px); line-height: 1.06; lette
   .setting-copy small { max-width: 220px; font-size: 11px; }
   .header-actions { gap: 7px; }
   .icon-button { width: 38px; height: 38px; }
+  .approval-button { min-height: 38px; padding: 0 11px; }
+  .approval-button > span:not(.notification-badge) { display: none; }
+  .approval-modal { padding: 20px; }
+  .approval-list li { align-items: stretch; flex-direction: column; }
+  .approval-actions button { flex: 1; justify-content: center; }
 }
