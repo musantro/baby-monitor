@@ -147,4 +147,25 @@ describe("baby view for the temporary parent camera", () => {
     expect(pc.close).toHaveBeenCalled();
     unmount();
   });
+
+  test("queues unknown parents for non-blocking approval", async () => {
+    let approvalResult;
+    loadAndApplyAnswerWhilePolling.mockImplementation(async (_pc, _isPolling, isTrustedParent) => {
+      approvalResult = isTrustedParent("new-parent-id");
+      if (await approvalResult) peerCallbacks.onConnect(pc);
+    });
+    const { unmount } = render(<BabyDevice showToast={jest.fn()} />);
+
+    await startBabyCamera();
+    expect(screen.getByRole("button", { name: "Pending approvals: 1" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Pending approvals: 1" }));
+    expect(screen.getByRole("dialog", { name: "Pending approvals" })).toBeInTheDocument();
+    expect(screen.getByText("new-parent-id")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+
+    await expect(approvalResult).resolves.toBe(true);
+    expect(screen.getByRole("button", { name: "Pending approvals: 0" })).toBeInTheDocument();
+    unmount();
+  });
 });

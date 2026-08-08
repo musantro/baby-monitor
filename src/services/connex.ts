@@ -155,7 +155,7 @@ export async function loadAndApplyAnswerWhilePolling(pc, isPolling = () => false
     await new Promise((resolve) => setTimeout(resolve, 5000));
     const answer = await loadSDP("answer");
     if (answer?.type !== "answer") continue;
-    if (!isTrustedParent(answer.parentID)) {
+    if (!(await isTrustedParent(answer.parentID))) {
       await storeSDP(pc.localDescription);
       continue;
     } else pc.parentID = answer.parentID;
