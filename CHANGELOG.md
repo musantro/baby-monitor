@@ -1,3 +1,9 @@
+## v1.4.0 (2026-08-08)
+
+### Feat
+
+- add non-blocking connection approvals
+
 ## v1.3.0 (2026-07-31)
 
 ### Feat
