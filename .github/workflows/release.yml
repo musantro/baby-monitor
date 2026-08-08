@@ -55,7 +55,9 @@ jobs:
             echo "version=$(uvx --from commitizen cz version --project)" >> "$GITHUB_OUTPUT"
           else
             rc=$?
-            if [ "$rc" -eq 21 ]; then
+            # Commitizen uses exit code 3 when there are no commits after the
+            # latest tag, and 21 when commits do not require a version bump.
+            if [ "$rc" -eq 3 ] || [ "$rc" -eq 21 ]; then
               echo "No version bump needed"
               echo "bumped=false" >> "$GITHUB_OUTPUT"
             else
